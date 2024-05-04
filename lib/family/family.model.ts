@@ -1,13 +1,13 @@
 
 export interface PersonBase {
-    id: string;
+    id: number;
     picture?: string;
-    firstName: string;
-    lastName: string;
-    birthCity: string;
-    birthDate: string;
-    deathCity?: string;
-    deathDate?: string;
+    firstname: string;
+    lastname: string;
+    birthcity: string;
+    birthdate: string;
+    deathcity?: string;
+    deathdate?: string;
     comments?: string;
 }
 
@@ -16,10 +16,15 @@ export interface Person extends PersonBase {
 }
 
 export interface Marriage {
-    p1: string;
-    p2: string;
-    children?: string[];
+    id: number;
+    p1: number;
+    p2: number;
     city?: string;
     date?: string;
+}
+
+export interface Child {
+    marriageid: number;
+    childid: number;
 }
 

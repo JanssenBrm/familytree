@@ -13,15 +13,15 @@ const Person = (({data }: { data: Person }) => {
                     {data.picture}
                 </div>
                 <div className="ml-2">
-                    <div className="text-lg font-bold">{data.lastName}</div>
-                    <div className="mt-0">{data.firstName} ({data.age})</div>
+                    <div className="text-lg font-bold">{data.lastname}</div>
+                    <div className="mt-0">{data.firstname} ({data.age})</div>
                     <div className="flex flex-col mt-2">
                         <div className="text-gray-500 text-xs flex items-center"><FaRegCircle size={8}
-                            className="mr-1.5 ml-0.5"/> {data.birthCity}, {data.birthDate.length === 4 ? data.birthDate : moment(data.birthDate).format('DD MMMM YYYY')}</div>
+                            className="mr-1.5 ml-0.5"/> {data.birthcity}, {data.birthdate.length === 4 ? data.birthdate : moment(data.birthdate).format('DD MMMM YYYY')}</div>
                         {
-                            data.deathDate && data.deathDate &&
+                            data.deathdate && data.deathdate &&
                             <div className="text-gray-500 text-xs flex items-center"><CgCross
-                                className="mr-1"/> {data.deathCity} {data.deathCity ? ', ':''}{data.deathDate.length === 4 ? data.deathDate : moment(data.deathDate).format('DD MMMM YYYY')}
+                                className="mr-1"/> {data.deathcity} {data.deathcity ? ', ':''}{data.deathdate.length === 4 ? data.deathdate : moment(data.deathdate).format('DD MMMM YYYY')}
                             </div>
                         }
 

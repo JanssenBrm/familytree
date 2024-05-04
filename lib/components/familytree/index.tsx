@@ -10,6 +10,8 @@ import 'reactflow/dist/style.css';
 import {getLayoutedGraph, nodeDims} from "@/lib/components/familytree/utils";
 import PersonNode from "@/lib/components/familytree/nodes/person";
 import MarriageNode from "@/lib/components/familytree/nodes/marriage";
+import {FaRegCircle} from "react-icons/fa";
+import moment from "moment";
 
 const FamilyTree = () => {
 
@@ -32,7 +34,7 @@ const FamilyTree = () => {
     }
 
     useEffect(() => {
-        getFamilyData()
+        getFamilyData(3)
             .then(({nodes, edges}) => {
                 const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedGraph(nodes, edges);
                 setNodes([...layoutedNodes])
@@ -42,8 +44,8 @@ const FamilyTree = () => {
 
     useEffect(() => {
         if (search !== '') {
-            setSearchResults(nodes.filter(n => n.data?.firstName?.toLowerCase().includes(search.toLowerCase()) ||
-                n.data?.lastName?.toLowerCase().includes(search.toLowerCase()) ||
+            setSearchResults(nodes.filter(n => n.data?.firstname?.toLowerCase().includes(search.toLowerCase()) ||
+                n.data?.lastname?.toLowerCase().includes(search.toLowerCase()) ||
                 n.data?.comments?.toLowerCase().includes(search.toLowerCase())
             ));
         } else {
@@ -73,8 +75,14 @@ const FamilyTree = () => {
                             searchResults.length === 0 ? (
                                 <span className="p-3 bg-white w-full">No results</span>
                             ) : searchResults.map((n: Node) => (
-                                <span className="p-3 bg-white w-full hover:bg-gray-50 hover:cursor-pointer"
-                                      onClick={() => zoomToNode(n)}>{n.data?.lastName} {n.data?.firstName}</span>
+                                <div className="p-3 bg-white w-full hover:bg-gray-50 hover:cursor-pointer"
+                                     onClick={() => zoomToNode(n)}>
+                                    <span>{n.data?.lastname} {n.data?.firstname}</span>
+                                    <div className="text-gray-500 text-xs flex items-center">
+                                        <FaRegCircle size={8}
+                                                     className="mr-1.5 ml-0.5"/> {n.data?.birthcity}, {n.data?.birthdate.length === 4 ? n.data?.birthdate : moment(n.data?.birthdate).format('DD MMMM YYYY')}
+                                    </div>
+                                </div>
                             ))
                         }
                         </div>

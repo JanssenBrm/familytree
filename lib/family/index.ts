@@ -1,14 +1,16 @@
-import {Marriage, Person, PersonBase} from "@/lib/family/family.model";
+'use server';
+
+import {Child, Marriage, Person, PersonBase} from "@/lib/family/family.model";
 import {Edge, Node} from "@/lib/family/tree.model";
 import moment from "moment/moment";
-import {familyData, marriages} from "@/lib/family/data/familiy.data";
+import {sql} from "@vercel/postgres";
 
 
-const getNodeFromID = (id: string, members: Person[]): Node | undefined => {
+const getNodeFromID = (id: number, members: Person[]): Node | undefined => {
     const member = members.find(p => p.id === id);
     if (member) {
         return {
-            id: member.id,
+            id: `${member.id}`,
             type: 'member',
             data: member,
         }
@@ -18,10 +20,10 @@ const getNodeFromID = (id: string, members: Person[]): Node | undefined => {
 }
 
 
-const generateTreeData = (members: Person[], marriages: Marriage[]): { nodes: Node[], edges: Edge[] } => {
+const generateTreeData = (members: Person[], marriages: Marriage[], children: Child[]): { nodes: Node[], edges: Edge[] } => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
-    const processed: string[] = [];
+    const processed: number[] = [];
 
     for (const marriage of marriages) {
         // Process marriage
@@ -36,7 +38,7 @@ const generateTreeData = (members: Person[], marriages: Marriage[]): { nodes: No
             }
             edges.push({
                 id: `marriage-edge-${p}`,
-                source: p,
+                source: `${p}`,
                 target: marriageId
             })
         })
@@ -47,18 +49,19 @@ const generateTreeData = (members: Person[], marriages: Marriage[]): { nodes: No
         });
 
         // Process children
-        for (const child of (marriage.children || [])) {
-            if (!processed.includes(child)) {
-                const pNode = getNodeFromID(child, members);
+        const marriageChildren = children.filter(c => c.marriageid ===  marriage.id)
+        for (const child of marriageChildren) {
+            if (!processed.includes(child.childid)) {
+                const pNode = getNodeFromID(child.childid, members);
                 if (pNode) {
                     nodes.push(pNode);
-                    processed.push(child);
+                    processed.push(child.childid);
                 }
             }
             edges.push({
                 id: `child-edge-${child}`,
                 source: marriageId,
-                target: child,
+                target: `${child.childid}`
             })
         }
     }
@@ -70,15 +73,15 @@ const generateTreeData = (members: Person[], marriages: Marriage[]): { nodes: No
 };
 
 const calculateAge = (members: PersonBase[]): Person[] => members.map(m => {
-    let birthYear = m.birthDate.length === 4 ? +m.birthDate : moment(m.birthDate).year();
+    let birthYear = m.birthdate.length === 4 ? +m.birthdate : moment(m.birthdate).year();
     let endYear = moment().year();
 
 
-    if (m.deathDate) {
-        if (m.deathDate.length === 4) {
-            endYear = +m.deathDate;
+    if (m.deathdate) {
+        if (m.deathdate.length === 4) {
+            endYear = +m.deathdate;
         } else {
-            endYear = moment(m.deathDate).year();
+            endYear = moment(m.deathdate).year();
         }
     }
     return {
@@ -86,7 +89,52 @@ const calculateAge = (members: PersonBase[]): Person[] => members.map(m => {
         age: endYear - birthYear,
     }
 })
-export const getFamilyData = async () => {
-    const agedMembers = calculateAge(familyData);
-    return generateTreeData(agedMembers, marriages);
+
+const getMembers = async (id: number): Promise<Person[]> => {
+    try {
+        const members = await sql<PersonBase>`SELECT *
+                                              FROM family_members
+                                              WHERE familyid = ${id}`;
+
+        return calculateAge(members.rows)
+    } catch (error) {
+        console.error('Failed to fetch family members:', error);
+        throw new Error(`Failed to fetch family members: ${error}`);
+    }
+
+}
+
+const getMarriages = async (id: number): Promise<Marriage[]> => {
+    try {
+        const result = await sql<Marriage>`SELECT *
+                                              FROM family_marriages
+                                              WHERE familyid = ${id}`;
+
+        return result.rows;
+    } catch (error) {
+        console.error('Failed to fetch family marriages', error);
+        throw new Error(`Failed to fetch family marriages: ${error}`);
+    }
+
+}
+
+const getChildren = async (id: number): Promise<Child[]> => {
+    try {
+        const result = await sql<Child>`SELECT *
+                                           FROM family_children
+                                           WHERE familyid = ${id}`;
+
+        return result.rows;
+    } catch (error) {
+        console.error('Failed to fetch family children', error);
+        throw new Error(`Failed to fetch family children: ${error}`);
+    }
+
+}
+export const getFamilyData = async (id: number) => {
+    const members = await getMembers(id);
+    const marriages = await getMarriages(id);
+    const children: Child[] = await getChildren(id);
+    console.log("DATA", members, marriages, children);
+    return generateTreeData(members, marriages, children);
 }
