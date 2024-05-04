@@ -1,0 +1,10 @@
+/* Add this CSS to your stylesheets */
+.tree-container {
+    width: 100%;
+    height: 600px;
+}
+
+
+.node_container {
+    background-color: white;
+}
