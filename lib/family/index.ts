@@ -1,13 +1,8 @@
 'use server';
 
 import {Child, Marriage, Person, PersonBase} from "@/stores/family/family.model";
-import {Edge, Node} from "@/lib/family/tree.model";
 import moment from "moment/moment";
 import {sql} from "@vercel/postgres";
-
-
-
-
 const calculateAge = (members: PersonBase[]): Person[] => members.map(m => {
     let birthYear = m.birthdate.length === 4 ? +m.birthdate : moment(m.birthdate).year();
     let endYear = moment().year();

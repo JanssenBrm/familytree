@@ -1,4 +1,4 @@
-import {Edge, Node} from "@/lib/family/tree.model";
+import {Edge} from "@/lib/family/tree.model";
 import dagre from '@dagrejs/dagre';
 import {Child, Marriage, Person} from "@/stores/family/family.model";
 
@@ -16,7 +16,7 @@ export const nodeDims = {
         height: 94,
     }
 }
-export const getLayoutedGraph = (nodes: Node[], edges: Edge[]): { nodes: Node[], edges: Edge[] } => {
+export const getLayoutedGraph = (nodes: Node[], edges: Edge[]): { nodes: Node<any>[], edges: Edge[] } => {
 
     dagreGraph.setGraph({rankdir: 'TB'});
 
