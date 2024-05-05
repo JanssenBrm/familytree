@@ -1,31 +1,36 @@
 'use server';
 
-import {Child, Marriage, Person, PersonBase} from "@/stores/family/family.model";
 import moment from "moment/moment";
 import {sql} from "@vercel/postgres";
+import {Child, Marriage, Person, PersonBase} from "@/stores/family/model";
+
 const calculateAge = (members: PersonBase[]): Person[] => members.map(m => {
-    let birthYear = m.birthdate.length === 4 ? +m.birthdate : moment(m.birthdate).year();
+    return {
+        ...m,
+        age: getAge(m)
+    }
+})
+
+const getAge = (person: PersonBase): number => {
+    let birthYear = person.birthdate.length === 4 ? +person.birthdate : moment(person.birthdate).year();
     let endYear = moment().year();
 
 
-    if (m.deathdate) {
-        if (m.deathdate.length === 4) {
-            endYear = +m.deathdate;
+    if (person.deathdate) {
+        if (person.deathdate.length === 4) {
+            endYear = +person.deathdate;
         } else {
-            endYear = moment(m.deathdate).year();
+            endYear = moment(person.deathdate).year();
         }
     }
-    return {
-        ...m,
-        age: endYear - birthYear,
-    }
-})
+    return endYear - birthYear;
+}
 
 const getPeople = async (id: number): Promise<Person[]> => {
     try {
         const people = await sql<PersonBase>`SELECT *
-                                              FROM family_members
-                                              WHERE familyid = ${id}`;
+                                             FROM family_members
+                                             WHERE familyid = ${id}`;
 
         return calculateAge(people.rows)
     } catch (error) {
@@ -38,8 +43,8 @@ const getPeople = async (id: number): Promise<Person[]> => {
 const getMarriages = async (id: number): Promise<Marriage[]> => {
     try {
         const result = await sql<Marriage>`SELECT *
-                                              FROM family_marriages
-                                              WHERE familyid = ${id}`;
+                                           FROM family_marriages
+                                           WHERE familyid = ${id}`;
 
         return result.rows;
     } catch (error) {
@@ -52,8 +57,8 @@ const getMarriages = async (id: number): Promise<Marriage[]> => {
 const getChildren = async (id: number): Promise<Child[]> => {
     try {
         const result = await sql<Child>`SELECT *
-                                           FROM family_children
-                                           WHERE familyid = ${id}`;
+                                        FROM family_children
+                                        WHERE familyid = ${id}`;
 
         return result.rows;
     } catch (error) {
@@ -70,5 +75,24 @@ export const getFamilyData = async (id: number) => {
         people,
         marriages,
         children
+    }
+}
+
+export const createPerson = async (family: number, person: PersonBase): Promise<Person> => {
+    try {
+        const result = await sql<{ id: number }>`
+            INSERT INTO family_members (familyid, firstname, lastname, birthcity, birthdate, deathcity, deathdate,
+                                        comments)
+            VALUES (${family}, ${person.firstname}, ${person.lastname}, ${person.birthcity}, ${person.birthdate},
+                    ${person.deathcity}, ${person.deathdate}, ${person.comments}) RETURNING id`;
+
+        return {
+            ...person,
+            id: result.rows[0].id,
+            age: getAge(person)
+        };
+    } catch (error) {
+        console.error('Failed to create person', error);
+        throw new Error(`Failed to create person: ${error}`);
     }
 }

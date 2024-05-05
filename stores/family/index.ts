@@ -1,5 +1,8 @@
 import {createStore} from 'zustand/vanilla'
-import {Child, Marriage, Person} from "@/stores/family/family.model";
+import {useContext} from "react";
+import {useStore} from "zustand";
+import {RootStoreContext} from "@/stores/root-store-provider";
+import {Child, Marriage, Person} from "@/stores/family/model";
 
 export type FamilyState = {
     people: Person[],
@@ -32,4 +35,16 @@ export const createFamilyStore = (
         setMarriages: (marriages: Marriage[]) => set((state) => ({marriages})),
         setChildren: (children: Child[]) => set((state) => ({children})),
     }))
+}
+
+export const useFamilyStore = <T, >(
+    selector: (store: FamilyStore) => T,
+): T => {
+    const familyStoreContext = useContext(RootStoreContext)?.family
+
+    if (!familyStoreContext) {
+        throw new Error(`useFamilyStore must be use within RootStoreProvider`)
+    }
+
+    return useStore(familyStoreContext, selector)
 }

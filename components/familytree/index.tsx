@@ -9,51 +9,58 @@ import 'reactflow/dist/style.css';
 import {generateTreeData, getLayoutedGraph} from "@/components/familytree/utils";
 import PersonNode from "@/components/familytree/nodes/person";
 import MarriageNode from "@/components/familytree/nodes/marriage";
-import {useFamilyStore} from "@/providers/family-store-provider";
-import {Person} from "@/stores/family/family.model";
 import Search from "@/components/search";
+import {useFamilyStore} from "@/stores/family";
+import {Person} from "@/stores/family/model";
 
-const FamilyTree = () => {
+interface FamilyTreeProps {
+    id?: number,
+}
+
+const FamilyTree = ({id}: FamilyTreeProps) => {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const {initFamily, people, marriages, children} = useFamilyStore((state) => state);
 
     useEffect(() => {
-        getFamilyData(3)
-            .then(({people, marriages, children}) => {
-                initFamily(people, marriages, children);
-            })
+        if (id) {
+            getFamilyData(id)
+                .then(({people, marriages, children}) => {
+                    initFamily(people, marriages, children);
+                })
+        }
     }, []);
 
-    useEffect(() => {
-        const {nodes, edges} = generateTreeData(people, marriages, children);
-        const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedGraph(nodes, edges);
-        setNodes([...layoutedNodes])
-        setEdges([...layoutedEdges]);
-    }, [people, marriages, children]);
+useEffect(() => {
+    const {nodes, edges} = generateTreeData(people, marriages, children);
+    const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedGraph(nodes, edges);
+    setNodes([...layoutedNodes])
+    setEdges([...layoutedEdges]);
+}, [people, marriages, children]);
 
 
-    return (
-        <div className='w-screen h-screen' id="graph">
-            <Search nodes={nodes.filter(n => n.type === 'member') as Node<Person>[]}></Search>
-            <ReactFlow nodes={nodes} edges={edges} nodeTypes={{
-                'member': PersonNode,
-                'marriage': MarriageNode
-            }}
-                       fitView
-                       className="bg-gray-50"
-            >
-                <Controls></Controls>
-                <MiniMap></MiniMap>
-            </ReactFlow>
-        </div>
-    );
-};
+return (
+    <div className='w-screen h-screen' id="graph">
+        <Search nodes={nodes.filter(n => n.type === 'member') as Node<Person>[]}></Search>
+        <ReactFlow nodes={nodes} edges={edges} nodeTypes={{
+            'member': PersonNode,
+            'marriage': MarriageNode
+        }}
+                   fitView
+                   className="bg-gray-50"
+        >
+            <Controls></Controls>
+            <MiniMap></MiniMap>
+        </ReactFlow>
+    </div>
+);
+}
 
-const FamilyTreeProvider = () => {
+
+const FamilyTreeProvider = ({id}: FamilyTreeProps) => {
     return (
         <ReactFlowProvider>
-            <FamilyTree/>
+            <FamilyTree id={id}/>
         </ReactFlowProvider>
     )
 }

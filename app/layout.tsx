@@ -2,8 +2,10 @@ import type {Metadata} from "next";
 import {Inter} from "next/font/google";
 import "./globals.css";
 import {ReactFlowProvider} from "reactflow";
-import {FamilyStoreProvider} from "@/providers/family-store-provider";
+import {RootStoreProvider} from "@/stores/root-store-provider";
 import {NextUIProvider} from "@nextui-org/react";
+import Toasts from "@/components/toasts";
+import {Providers} from "@/app/providers";
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -20,11 +22,10 @@ export default function RootLayout({
     return (
         <html lang="en">
         <body className={inter.className}>
-        <NextUIProvider>
-            <FamilyStoreProvider>
-                {children}
-            </FamilyStoreProvider>
-        </NextUIProvider>
+        <Providers>
+            {children}
+            <Toasts></Toasts>
+        </Providers>
         </body>
         </html>
     );

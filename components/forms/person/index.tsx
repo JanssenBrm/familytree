@@ -25,7 +25,6 @@ const PersonForm = ({valueChanges}: FormProps) => {
        resolver: yupResolver(schema)
     });
 
-    const watchValues = watch();
 
     useEffect(() => {
        if (formState.isValid) {
@@ -36,7 +35,7 @@ const PersonForm = ({valueChanges}: FormProps) => {
                deathdate: values.deathdate ? moment(values.deathdate).format("YYYY/MM/DD") : null
            } as PersonBase);
        }
-    }, [watchValues])
+    }, [formState.isValid])
 
 
     return (

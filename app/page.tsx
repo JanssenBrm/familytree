@@ -14,18 +14,19 @@ export enum Modals {
 
 export default function Home() {
     const [modal, setModal] = useState<Modals>(Modals.NONE)
+    const familyId = 3;
 
     const modalClose = () => {
         setModal(Modals.NONE);
     }
   return (
       <main>
-        <FamilyTree></FamilyTree>
+        <FamilyTree id={familyId}></FamilyTree>
           <div className="absolute bottom-10 left-[50%]">
               <Menu createPerson={() => setModal(Modals.NEW_PERSON)}></Menu>
           </div>
           {
-              modal === Modals.NEW_PERSON && <AddPersonModal onClose={modalClose}></AddPersonModal>
+              modal === Modals.NEW_PERSON && familyId && <AddPersonModal familyId={familyId} onClose={modalClose}></AddPersonModal>
           }
     </main>
   );
