@@ -1,4 +1,4 @@
-import {Marriage, Person} from "@/lib/family/family.model";
+import {Marriage, Person} from "@/stores/family/family.model";
 
 
 

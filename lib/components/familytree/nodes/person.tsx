@@ -3,7 +3,7 @@ import {memo} from "react";
 import moment from "moment/moment";
 import {FaRegCircle} from "react-icons/fa";
 import {CgCross} from "react-icons/cg";
-import {Person} from "@/lib/family/family.model";
+import {Person} from "@/stores/family/family.model";
 
 const Person = (({data }: { data: Person }) => {
     return (

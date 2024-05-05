@@ -2,7 +2,7 @@ import {Handle, Position} from "reactflow";
 import {memo} from "react";
 import moment from "moment/moment";
 import {GiBigDiamondRing} from "react-icons/gi";
-import {Marriage} from "@/lib/family/family.model";
+import {Marriage} from "@/stores/family/family.model";
 
 const Marriage = (({data}: { data: Marriage }) => {
     return (

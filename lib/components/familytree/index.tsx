@@ -7,11 +7,12 @@ import {Controls, MiniMap, ReactFlow, ReactFlowProvider, useReactFlow} from "rea
 import {Edge, Node} from "@/lib/family/tree.model";
 
 import 'reactflow/dist/style.css';
-import {getLayoutedGraph, nodeDims} from "@/lib/components/familytree/utils";
+import {generateTreeData, getLayoutedGraph, nodeDims} from "@/lib/components/familytree/utils";
 import PersonNode from "@/lib/components/familytree/nodes/person";
 import MarriageNode from "@/lib/components/familytree/nodes/marriage";
 import {FaRegCircle} from "react-icons/fa";
 import moment from "moment";
+import {useFamilyStore} from "@/providers/family-store-provider";
 
 const FamilyTree = () => {
 
@@ -19,6 +20,7 @@ const FamilyTree = () => {
     const [edges, setEdges] = useState<Edge[]>([]);
     const [search, setSearch] = useState<string>('');
     const [searchResults, setSearchResults] = useState<Node[]>([]);
+    const { initFamily, people, marriages, children } = useFamilyStore((state) => state);
 
     const {setCenter} = useReactFlow();
 
@@ -35,12 +37,17 @@ const FamilyTree = () => {
 
     useEffect(() => {
         getFamilyData(3)
-            .then(({nodes, edges}) => {
-                const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedGraph(nodes, edges);
-                setNodes([...layoutedNodes])
-                setEdges([...layoutedEdges]);
-            });
+            .then(({people, marriages, children}) => {
+                initFamily(people, marriages, children);
+            })
     }, []);
+
+    useEffect(() => {
+        const { nodes, edges } = generateTreeData(people, marriages, children);
+        const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedGraph(nodes, edges);
+        setNodes([...layoutedNodes])
+        setEdges([...layoutedEdges]);
+    }, [people, marriages, children]);
 
     useEffect(() => {
         if (search !== '') {
