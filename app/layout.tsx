@@ -2,7 +2,8 @@ import type {Metadata} from "next";
 import {Inter} from "next/font/google";
 import "./globals.css";
 import {ReactFlowProvider} from "reactflow";
-import { FamilyStoreProvider } from "@/providers/family-store-provider";
+import {FamilyStoreProvider} from "@/providers/family-store-provider";
+import {NextUIProvider} from "@nextui-org/react";
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -16,13 +17,15 @@ export default function RootLayout({
                                    }: Readonly<{
     children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>
-      <FamilyStoreProvider>
-          {children}
-      </FamilyStoreProvider>
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en">
+        <body className={inter.className}>
+        <NextUIProvider>
+            <FamilyStoreProvider>
+                {children}
+            </FamilyStoreProvider>
+        </NextUIProvider>
+        </body>
+        </html>
+    );
 }

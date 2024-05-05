@@ -1,5 +1,6 @@
 import Image from "next/image";
-import FamilyTree from "@/lib/components/familytree";
+import FamilyTree from "@/components/familytree";
+import Search from "@/components/search";
 
 export default function Home() {
   return (
