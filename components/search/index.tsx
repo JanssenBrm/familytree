@@ -4,7 +4,7 @@ import moment from "moment/moment";
 import React, {useEffect, useState} from "react";
 import {Person} from "@/stores/family/family.model";
 import {nodeDims} from "@/components/familytree/utils";
-import {Input} from "@nextui-org/react";
+import {Input, ScrollShadow} from "@nextui-org/react";
 
 interface SearchProps {
     nodes: Node<Person>[],
@@ -53,7 +53,7 @@ const Search = ({nodes}: SearchProps) => {
             />
             {
                 search && search !== '' && (
-                    <div className="w-full flex flex-col shadow-md max-h-[90vh] overflow-auto"> {
+                    <ScrollShadow className="w-full flex flex-col shadow-md max-h-[90vh] overflow-auto"> {
                         searchResults.length === 0 ? (
                             <span className="p-3 bg-white w-full">No results</span>
                         ) : searchResults.map((n: Node, idx: number) => (
@@ -68,7 +68,7 @@ const Search = ({nodes}: SearchProps) => {
                             </div>
                         ))
                     }
-                    </div>
+                    </ScrollShadow>
                 )
             }
         </div>
