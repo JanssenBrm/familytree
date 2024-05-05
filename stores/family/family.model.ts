@@ -1,6 +1,6 @@
 
 export interface PersonBase {
-    id: number;
+    id?: number;
     picture?: string;
     firstname: string;
     lastname: string;
