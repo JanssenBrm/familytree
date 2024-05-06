@@ -117,7 +117,7 @@ export const generateTreeData = (members: Person[], marriages: Marriage[], child
                 }
             }
             edges.push({
-                id: `child-edge-${child}`,
+                id: `child-edge-${child.marriageid}-${child.childid}`,
                 source: marriageId,
                 target: `${child.childid}`
             })

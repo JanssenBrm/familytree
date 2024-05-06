@@ -17,6 +17,10 @@ interface FamilyTreeProps {
     id?: number,
 }
 
+const nodeTypes = {
+    'member': PersonNode,
+    'marriage': MarriageNode
+}
 const FamilyTree = ({id}: FamilyTreeProps) => {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -32,7 +36,6 @@ const FamilyTree = ({id}: FamilyTreeProps) => {
     }, []);
 
 useEffect(() => {
-    console.log("TRIGGERING REFRESH OF DATA");
     const {nodes, edges} = generateTreeData(people, marriages, children);
     const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedGraph(nodes, edges);
     setNodes([...layoutedNodes])
@@ -43,10 +46,7 @@ useEffect(() => {
 return (
     <div className='w-screen h-screen' id="graph">
         <Search nodes={nodes.filter(n => n.type === 'member') as Node<Person>[]}></Search>
-        <ReactFlow nodes={nodes} edges={edges} nodeTypes={{
-            'member': PersonNode,
-            'marriage': MarriageNode
-        }}
+        <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes}
                    fitView
                    className="bg-gray-50"
         >

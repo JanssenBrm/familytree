@@ -22,13 +22,13 @@ export default function Home() {
 
 
     useEffect(() => {
-        console.log("EDIT PERSON", editPerson)
         if (editPerson !== undefined) {
             setModal(Modals.EDIT_PERSON);
         } else {
             setModal(Modals.NONE);
         }
-    }, [editPerson])
+    }, [edit
+        Person])
 
     const modalClose = () => {
         setEditPerson(undefined);
