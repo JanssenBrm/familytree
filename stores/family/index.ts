@@ -2,7 +2,7 @@ import {createStore} from 'zustand/vanilla'
 import {useContext} from "react";
 import {useStore} from "zustand";
 import {RootStoreContext} from "@/stores/root-store-provider";
-import {Child, Marriage, Person} from "@/stores/family/model";
+import {Child, Marriage, Person, PersonBase} from "@/stores/family/model";
 
 export type FamilyState = {
     people: Person[],
@@ -15,6 +15,9 @@ export type FamilyActions = {
     setMarriages: (marriage: Marriage[]) => void
     setChildren: (children: Child[]) => void
     initFamily: (people: Person[], marriages: Marriage[], children: Child[]) => void
+    addPerson: (person: Person) => void,
+    updatePerson: (id: number, person: Person) => void,
+    deletePerson: (id: number) => void,
 }
 
 export type FamilyStore = FamilyState & FamilyActions;
@@ -34,6 +37,15 @@ export const createFamilyStore = (
         setPeople: (people: Person[]) => set((state) => ({people})),
         setMarriages: (marriages: Marriage[]) => set((state) => ({marriages})),
         setChildren: (children: Child[]) => set((state) => ({children})),
+        addPerson: (person: Person) => set((state) => ({people: [...state.people, person]})),
+        updatePerson: (id: number, person: Person) => set((state) => ({
+            people: [...state.people].map((p: Person) => p.id === id ? ({
+                ...p,
+                ...person
+            }) : p)
+        })),
+        deletePerson: (id: number) => set((state) => ({
+            people: [...state.people].filter((p: Person) => p.id !== id)})),
     }))
 }
 

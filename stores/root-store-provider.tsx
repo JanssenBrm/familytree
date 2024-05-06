@@ -4,9 +4,14 @@ import {createContext, type ReactNode, useRef} from 'react'
 import {type StoreApi} from 'zustand'
 import {createFamilyStore, type FamilyStore} from "@/stores/family";
 import {createToastStore, ToastStore} from "@/stores/toasts";
+import {createUiStore, UiStore} from "@/stores/ui";
 
 
-export const RootStoreContext = createContext<{ family: StoreApi<FamilyStore>, toasts: StoreApi<ToastStore> } | null>(
+export const RootStoreContext = createContext<{
+    family: StoreApi<FamilyStore>,
+    toasts: StoreApi<ToastStore>,
+    ui: StoreApi<UiStore>
+} | null>(
     null,
 )
 
@@ -29,8 +34,14 @@ export const RootStoreProvider = ({
         toastStoreRef.current = createToastStore();
     }
 
+    const uiStoreRef = useRef<StoreApi<UiStore>>()
+    if (!uiStoreRef.current) {
+        uiStoreRef.current = createUiStore();
+    }
+
     return (
-        <RootStoreContext.Provider value={{family: familyStoreRef.current, toasts: toastStoreRef.current}}>
+        <RootStoreContext.Provider
+            value={{family: familyStoreRef.current, toasts: toastStoreRef.current, ui: uiStoreRef.current}}>
             {children}
         </RootStoreContext.Provider>
     )

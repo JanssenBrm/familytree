@@ -1,6 +1,6 @@
-import {Edge} from "@/lib/family/tree.model";
 import dagre from '@dagrejs/dagre';
-import {Child, Marriage, Person} from "@/stores/family/family.model";
+import {type Node, type Edge} from "reactflow";
+import {Child, Marriage, Person} from "@/stores/family/model";
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -18,10 +18,10 @@ export const nodeDims = {
 }
 export const getLayoutedGraph = (nodes: Node[], edges: Edge[]): { nodes: Node<any>[], edges: Edge[] } => {
 
+
     dagreGraph.setGraph({rankdir: 'TB'});
 
     nodes.forEach((node: Node) => {
-        console.log(node.type);
         // @ts-ignore
         dagreGraph.setNode(node.id, {width: nodeDims[node.type].width, height: nodeDims[node.type].height});
     });
@@ -32,12 +32,12 @@ export const getLayoutedGraph = (nodes: Node[], edges: Edge[]): { nodes: Node<an
 
     dagre.layout(dagreGraph);
 
-    nodes.forEach((node: Node) => {
+    nodes.forEach((node: Node<Person>) => {
         const nodeWithPosition = dagreGraph.node(node.id);
-        node.targetPosition = 'top';
-        node.sourcePosition = 'bottom';
         node.position = {
+            // @ts-ignore
             x: nodeWithPosition.x - nodeDims[node.type].width / 2,
+            // @ts-ignore
             y: nodeWithPosition.y - nodeDims[node.type].height / 2,
         };
 
@@ -48,19 +48,33 @@ export const getLayoutedGraph = (nodes: Node[], edges: Edge[]): { nodes: Node<an
     return {nodes, edges};
 }
 
-const getNodeFromID = (id: number, members: Person[]): Node | undefined => {
-    const member = members.find(p => p.id === id);
-    if (member) {
-        return {
-            id: `${member.id}`,
-            type: 'member',
-            data: member,
-        }
+const createPersonNode = (person: Person, disconnected: boolean): Node<Person> => ({
+    id: `${person.id}`,
+    type: 'member',
+    position: {
+        x: 0,
+        y: 0
+    },
+    data: {
+        ...person,
+        disconnected,
+    },
+})
+
+const getNodeFromID = (id: number, members: Person[], disconnected: boolean): Node | undefined => {
+    const person = members.find(p => p.id === id);
+    if (person) {
+        return createPersonNode(person, disconnected)
     } else {
         return undefined;
     }
 }
-export const generateTreeData = (members: Person[], marriages: Marriage[], children: Child[]): { nodes: Node[], edges: Edge[] } => {
+
+
+export const generateTreeData = (members: Person[], marriages: Marriage[], children: Child[]): {
+    nodes: Node<Person>[],
+    edges: Edge[]
+} => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
     const processed: number[] = [];
@@ -70,7 +84,7 @@ export const generateTreeData = (members: Person[], marriages: Marriage[], child
         const marriageId = `marriage-${marriage.p1}-${marriage.p2}`;
         [marriage.p1, marriage.p2].forEach((p) => {
             if (!processed.includes(p)) {
-                const pNode = getNodeFromID(p, members);
+                const pNode = getNodeFromID(p, members, false);
                 if (pNode) {
                     nodes.push(pNode);
                     processed.push(p);
@@ -85,6 +99,10 @@ export const generateTreeData = (members: Person[], marriages: Marriage[], child
         nodes.push({
             id: marriageId,
             type: 'marriage',
+            position: {
+                x: 0,
+                y: 0
+            },
             data: marriage
         });
 
@@ -92,7 +110,7 @@ export const generateTreeData = (members: Person[], marriages: Marriage[], child
         const marriageChildren = children.filter(c => c.marriageid === marriage.id)
         for (const child of marriageChildren) {
             if (!processed.includes(child.childid)) {
-                const pNode = getNodeFromID(child.childid, members);
+                const pNode = getNodeFromID(child.childid, members, false);
                 if (pNode) {
                     nodes.push(pNode);
                     processed.push(child.childid);
@@ -104,6 +122,13 @@ export const generateTreeData = (members: Person[], marriages: Marriage[], child
                 target: `${child.childid}`
             })
         }
+    }
+
+    // Processing those nodes that are not connected
+    const disconnected: Person[] = members.filter((m: Person) => !processed.includes(m.id || 0));
+
+    for (const person of disconnected) {
+        nodes.push(createPersonNode(person, true))
     }
 
     return {

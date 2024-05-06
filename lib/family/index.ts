@@ -96,3 +96,38 @@ export const createPerson = async (family: number, person: PersonBase): Promise<
         throw new Error(`Failed to create person: ${error}`);
     }
 }
+
+export const updatePerson = async (family: number, id: number, person: PersonBase): Promise<Person> => {
+    try {
+        await sql`
+            UPDATE family_members
+            SET familyid  = ${family},
+                firstname = ${person.firstname},
+                lastname  = ${person.lastname},
+                birthcity = ${person.birthcity},
+                birthdate = ${person.birthdate},
+                deathcity = ${person.deathcity},
+                deathdate = ${person.deathdate},
+                comments  = ${person.comments}
+            WHERE id = ${id}`;
+
+        return {
+            ...person,
+            id,
+            age: getAge(person)
+        };
+    } catch (error) {
+        console.error('Failed to update person', error);
+        throw new Error(`Failed to update person: ${error}`);
+    }
+}
+export const deletePerson = async (family: number, id: number): Promise<void> => {
+    try {
+        await sql`
+            DELETE FROM family_members
+            WHERE id = ${id}`;
+    } catch (error) {
+        console.error('Failed to delete person', error);
+        throw new Error(`Failed to delete person: ${error}`);
+    }
+}

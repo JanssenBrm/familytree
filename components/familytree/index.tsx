@@ -32,6 +32,7 @@ const FamilyTree = ({id}: FamilyTreeProps) => {
     }, []);
 
 useEffect(() => {
+    console.log("TRIGGERING REFRESH OF DATA");
     const {nodes, edges} = generateTreeData(people, marriages, children);
     const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedGraph(nodes, edges);
     setNodes([...layoutedNodes])

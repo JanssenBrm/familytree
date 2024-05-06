@@ -3,11 +3,23 @@ import {memo} from "react";
 import moment from "moment/moment";
 import {FaRegCircle} from "react-icons/fa";
 import {CgCross} from "react-icons/cg";
-import {Person} from "@/stores/family/family.model";
+import {Person} from "@/stores/family/model";
+import clsx from "clsx";
+import {useUiStore} from "@/stores/ui";
 
-const Person = (({data }: { data: Person }) => {
+const Person = (({data}: { data: Person }) => {
+    const {setEditPerson} = useUiStore((state) => state);
+
+
     return (
-        <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-gray-200 w-80">
+        <div
+            className={clsx("px-4 py-2 shadow-md rounded-md w-80 hover:cursor-pointer", {
+                    "border-red-500 border-3 bg-red-50": !!data.disconnected,
+                    "border-gray-200 border-2 bg-white": !data.disconnected
+                }
+            )}
+            onClick={() => setEditPerson(data)}
+        >
             <div className="flex items-center">
                 <div className="rounded-full w-12 h-12 flex justify-center items-center bg-gray-100">
                     {data.picture}
@@ -17,11 +29,12 @@ const Person = (({data }: { data: Person }) => {
                     <div className="mt-0">{data.firstname} ({data.age})</div>
                     <div className="flex flex-col mt-2">
                         <div className="text-gray-500 text-xs flex items-center"><FaRegCircle size={8}
-                            className="mr-1.5 ml-0.5"/> {data.birthcity}, {data.birthdate.length === 4 ? data.birthdate : moment(data.birthdate).format('DD MMMM YYYY')}</div>
+                                                                                              className="mr-1.5 ml-0.5"/> {data.birthcity}, {data.birthdate.length === 4 ? data.birthdate : moment(data.birthdate).format('DD MMMM YYYY')}
+                        </div>
                         {
                             data.deathdate && data.deathdate &&
                             <div className="text-gray-500 text-xs flex items-center"><CgCross
-                                className="mr-1"/> {data.deathcity} {data.deathcity ? ', ':''}{data.deathdate.length === 4 ? data.deathdate : moment(data.deathdate).format('DD MMMM YYYY')}
+                                className="mr-1"/> {data.deathcity} {data.deathcity ? ', ' : ''}{data.deathdate.length === 4 ? data.deathdate : moment(data.deathdate).format('DD MMMM YYYY')}
                             </div>
                         }
 

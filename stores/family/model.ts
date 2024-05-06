@@ -13,6 +13,7 @@ export interface PersonBase {
 
 export interface Person extends PersonBase {
     age: number;
+    disconnected?: boolean
 }
 
 export interface Marriage {
