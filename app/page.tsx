@@ -27,8 +27,7 @@ export default function Home() {
         } else {
             setModal(Modals.NONE);
         }
-    }, [edit
-        Person])
+    }, [editPerson])
 
     const modalClose = () => {
         setEditPerson(undefined);
