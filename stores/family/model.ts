@@ -17,7 +17,7 @@ export interface Person extends PersonBase {
 }
 
 export interface Marriage {
-    id: number;
+    id?: number;
     p1: number;
     p2: number;
     city?: string;

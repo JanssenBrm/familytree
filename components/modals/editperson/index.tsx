@@ -1,8 +1,8 @@
 import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from "@nextui-org/modal";
-import {Button, DatePicker, Input, Spinner} from "@nextui-org/react";
+import {Autocomplete, AutocompleteItem, Button, DatePicker, Input, Spinner} from "@nextui-org/react";
 import {ModalProps} from "@/components/modals/base";
 import {useState} from "react";
-import {createPerson, deletePerson, updatePerson} from "@/lib/family";
+import {createMarriage, createPerson, deletePerson, updatePerson} from "@/lib/family";
 import {ToastType} from "@/stores/toasts/model";
 import {useToastsStore} from "@/stores/toasts";
 import {Person, PersonBase} from "@/stores/family/model";
@@ -15,9 +15,10 @@ import {useFamilyStore} from "@/stores/family";
 
 interface EditPersonModalProps extends ModalProps {
     person?: Person,
+    members: Person[],
 }
 
-const schema = yup.object({
+const personSchema = yup.object({
     firstname: yup.string().required(),
     lastname: yup.string().required(),
     birthcity: yup.string().required(),
@@ -25,9 +26,20 @@ const schema = yup.object({
     deathcity: yup.string(),
     deathdate: yup.mixed(),
     comments: yup.string(),
-}).required();
+});
 
-const EditPersonModal = ({onClose, familyId, person}: EditPersonModalProps) => {
+const marriageSchema = yup.object({
+    partner: yup.number(),
+    city: yup.string(),
+    date: yup.mixed(),
+})
+
+const schema = yup.object({
+    person: personSchema,
+    marriage: marriageSchema,
+})
+
+const EditPersonModal = ({onClose, familyId, person, members}: EditPersonModalProps) => {
     const [personFormValue, setPersonFormValue] = useState<PersonBase | undefined>();
     const [loading, setLoading] = useState<boolean>(false);
     const {addToast} = useToastsStore((state) => state);
@@ -36,41 +48,53 @@ const EditPersonModal = ({onClose, familyId, person}: EditPersonModalProps) => {
     const {register, control, watch, getValues, formState} = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
-            firstname: person?.firstname,
-            lastname: person?.lastname,
-            birthcity: person?.birthcity,
-            birthdate: person?.birthdate ? parseDate(moment(person.birthdate).format('YYYY-MM-DD')) : undefined,
-            deathcity: person?.deathcity,
-            deathdate: person?.deathdate ? parseDate(moment(person.deathdate).format('YYYY-MM-DD')) : undefined,
-            comments: person?.comments
+            person: {
+                firstname: person?.firstname,
+                lastname: person?.lastname,
+                birthcity: person?.birthcity,
+                birthdate: person?.birthdate ? parseDate(moment(person.birthdate).format('YYYY-MM-DD')) : undefined,
+                deathcity: person?.deathcity,
+                deathdate: person?.deathdate ? parseDate(moment(person.deathdate).format('YYYY-MM-DD')) : undefined,
+                comments: person?.comments
+            },
+            marriage: {
+                partner: undefined,
+                date: undefined,
+            }
         }
     });
 
-    const addPerson = async (family: number, data: PersonBase) => {
+    const watchMarriagePartner = watch('marriage.partner');
+
+    const addPerson = async (family: number, data: PersonBase): Promise<Person | null> => {
         try {
             const newPerson: Person = await createPerson(family, data);
             storeAddPerson(newPerson);
             onClose();
+            return newPerson;
         } catch (error: any) {
             console.error(`Could not add person`, error);
             addToast({
                 message: 'Sorry! Kan de persoon niet toevoegen',
                 type: ToastType.ERROR
             });
+            return null;
         }
     }
 
-    const editPerson = async (family: number, id: number, data: PersonBase) => {
+    const editPerson = async (family: number, id: number, data: PersonBase): Promise<Person | null> => {
         try {
             const updatedPerson: Person = await updatePerson(family, id, data)
             storeUpdatePerson(id, updatedPerson);
             onClose();
+            return updatedPerson
         } catch (error: any) {
             console.error(`Could not edit person`, error);
             addToast({
                 message: 'Sorry! Kan persoon niet aanpassen',
                 type: ToastType.ERROR
             });
+            return null;
         }
     }
 
@@ -93,9 +117,10 @@ const EditPersonModal = ({onClose, familyId, person}: EditPersonModalProps) => {
     }
 
 
-    const submitPerson = async () => {
+    const submitPerson = async (): Promise<Person | null> => {
+        let result = null;
         if (formState.isValid && familyId) {
-            const values = getValues();
+            const values = getValues().person;
             const formValue: PersonBase = {
                 ...values,
                 // @ts-ignore
@@ -105,11 +130,33 @@ const EditPersonModal = ({onClose, familyId, person}: EditPersonModalProps) => {
             }
             setLoading(true)
             if (person && person.id) {
-                await editPerson(familyId, person.id, formValue);
+                result = await editPerson(familyId, person.id, formValue);
             } else {
-                await addPerson(familyId, formValue);
+                result = await addPerson(familyId, formValue);
             }
             setLoading(false);
+        }
+        return result;
+    }
+
+    const submitMarriage = async (person: Person) => {
+        if (formState.isValid && familyId) {
+            const {partner, city, date} = getValues().marriage;
+            if (partner && partner > 0) {
+                await createMarriage(familyId, {
+                    p1: person.id,
+                    p2: partner,
+                    city,
+                    date: date ? moment(date.toDate()).format("YYYY/MM/DD") : undefined
+                });
+            }
+        }
+    }
+
+    const submitForm = async () => {
+        const person = await submitPerson();
+        if (person) {
+            await submitMarriage(person);
         }
     }
 
@@ -122,29 +169,58 @@ const EditPersonModal = ({onClose, familyId, person}: EditPersonModalProps) => {
                             {person ? `Familielid ${person?.firstname} ${person?.lastname} bewerken` : 'Nieuw familielid toevoegen'}
                         </ModalHeader>
                         <ModalBody className="flex flex-col overflow-auto">
-                            <Input label="Voornaam" {...register("firstname", {required: true})} />
-                            <Input label="Achternaam" {...register("lastname", {required: true})} />
+                            <Input label="Voornaam" {...register("person.firstname", {required: true})} />
+                            <Input label="Achternaam" {...register("person.lastname", {required: true})} />
                             <h3 className="p-2 font-bold text-neutral-500 uppercase text-sm">Geboorte</h3>
                             <div className="flex flex-row gap-4">
                                 <Controller
-                                    name="birthdate"
+                                    name="person.birthdate"
                                     control={control}
                                     rules={{required: true}}
                                     render={({field}) => <DatePicker label="Datum" {...field} />}
                                 />
-                                <Input label="Stad" {...register("birthcity", {required: true})} />
+                                <Input label="Stad" {...register("person.birthcity", {required: true})} />
                             </div>
                             <h3 className="p-2 font-bold text-neutral-500 uppercase text-sm">Overlijden</h3>
                             <div className="flex flex-row gap-4">
                                 <Controller
-                                    name="deathdate"
+                                    name="person.deathdate"
                                     control={control}
                                     render={({field}) => <DatePicker label="Datum" {...field} />}
                                 />
-                                <Input label="Stad" {...register("deathcity", {required: true})} />
+                                <Input label="Stad" {...register("person.deathcity", {required: true})} />
                             </div>
-                            <h3 className="p-2 font-bold text-neutral-500 uppercase text-sm">Extra</h3>
-                            <Input label="Extra informatie" {...register("comments")}></Input>
+                            <h3 className="p-2 font-bold text-neutral-500 uppercase text-sm">Huwelijk</h3>
+
+                            <Controller render={({field}) =>
+                                // @ts-ignore
+                                <Autocomplete {...field} label="Getrouwd met" placeholder="Selecteer persoon"
+                                              onSelectionChange={(key: any) => field.onChange(+key)}
+                                >
+                                    {members.map(m => ({
+                                        ...m,
+                                        label: `${m.firstname} ${m.lastname}`
+                                    })).map((m) => (
+                                        <AutocompleteItem key={m.id || 0} value={m.id || 0}>
+                                            {m.label}
+                                        </AutocompleteItem>
+                                    ))}
+                                </Autocomplete>
+
+                            } name={"marriage.partner"} control={control}/>
+                            {
+                                !!watchMarriagePartner &&
+                                <div className="flex flex-row gap-4">
+                                    <Controller
+                                        name="marriage.date"
+                                        control={control}
+                                        render={({field}) => <DatePicker label="Datum" {...field} />}
+                                    />
+                                    <Input label="Stad" {...register("marriage.city")} />
+                                </div>
+                            }
+                            <h3 className="p-2 font-bold text-neutral-500 uppercase text-sm"> Extra</h3>
+                            <Input label="Extra informatie" {...register("person.comments")}></Input>
                         </ModalBody>
                         <ModalFooter className="flex justify-between items-center">
                             <div>
@@ -160,7 +236,7 @@ const EditPersonModal = ({onClose, familyId, person}: EditPersonModalProps) => {
                                     Sluiten
                                 </Button>
                                 <Button color="primary" isDisabled={!formState.isValid || loading}
-                                        onPress={submitPerson}>
+                                        onPress={submitForm}>
                                     {loading ? <Spinner/> : <span> {person ? 'Aanpassen' : 'Toevoegen'}</span>}
                                 </Button>
 

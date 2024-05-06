@@ -131,3 +131,19 @@ export const deletePerson = async (family: number, id: number): Promise<void> =>
         throw new Error(`Failed to delete person: ${error}`);
     }
 }
+
+export const createMarriage = async (family: number, marriage: Marriage): Promise<Marriage> => {
+    try {
+        const result = await sql<{ id: number }>`
+            INSERT INTO family_marriages (familyid, p1, p2, city, date)
+            VALUES (${family}, ${marriage.p1}, ${marriage.p2}, ${marriage.city}, ${marriage.date}) RETURNING id`;
+
+        return {
+            ...marriage,
+            id: result.rows[0].id,
+        };
+    } catch (error) {
+        console.error('Failed to create marriage', error);
+        throw new Error(`Failed to create marriage: ${error}`);
+    }
+}

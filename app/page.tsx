@@ -7,6 +7,7 @@ import Menu from "@/components/menu";
 import {useEffect, useState} from "react";
 import EditPersonModal from "../components/modals/editperson";
 import {useUiStore} from "@/stores/ui";
+import {useFamilyStore} from "@/stores/family";
 
 export enum Modals {
     'NONE',
@@ -17,6 +18,7 @@ export enum Modals {
 export default function Home() {
     const [modal, setModal] = useState<Modals>(Modals.NONE)
     const { editPerson, setEditPerson } = useUiStore((state) => state);
+    const { people } = useFamilyStore((state) => state);
 
     const familyId = 3;
 
@@ -40,7 +42,7 @@ export default function Home() {
               <Menu createPerson={() => setModal(Modals.NEW_PERSON)}></Menu>
           </div>
           {
-              (modal === Modals.NEW_PERSON || modal === Modals.EDIT_PERSON) && familyId && <EditPersonModal familyId={familyId} person={editPerson} onClose={modalClose}></EditPersonModal>
+              (modal === Modals.NEW_PERSON || modal === Modals.EDIT_PERSON) && familyId && <EditPersonModal familyId={familyId} person={editPerson} members={people} onClose={modalClose}></EditPersonModal>
           }
     </main>
   );
