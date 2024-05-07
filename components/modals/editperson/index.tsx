@@ -87,13 +87,15 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
             if (marriage) {
                 return {
                     partner: marriage.p1 === person.id ? marriage.p2 : marriage.p1,
-                    date: marriage.date ? parseDate(moment(marriage.date).format('YYYY-MM-DD')) : undefined
+                    date: marriage.date ? parseDate(moment(marriage.date).format('YYYY-MM-DD')) : undefined,
+                    city: marriage.city
                 }
             }
         }
         return {
             partner: undefined,
-            date: undefined
+            date: undefined,
+            city: undefined,
         }
 
     }
