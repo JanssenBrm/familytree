@@ -359,7 +359,7 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
                                 </Button>
                                 <Button color="primary" isDisabled={!formState.isValid || loading}
                                         onPress={submitForm}>
-                                    {loading ? <Spinner/> : <span> {person ? 'Aanpassen' : 'Toevoegen'}</span>}
+                                    {loading ? <Spinner size="sm" color="white"  /> : <span> {person ? 'Aanpassen' : 'Toevoegen'}</span>}
                                 </Button>
 
                             </div>
