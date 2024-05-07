@@ -25,6 +25,7 @@ export interface Marriage {
 }
 
 export interface Child {
+    id?: number;
     marriageid: number;
     childid: number;
 }

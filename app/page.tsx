@@ -1,8 +1,6 @@
 'use client';
 
-import Image from "next/image";
 import FamilyTree from "@/components/familytree";
-import Search from "@/components/search";
 import Menu from "@/components/menu";
 import {useEffect, useState} from "react";
 import EditPersonModal from "../components/modals/editperson";
@@ -17,8 +15,8 @@ export enum Modals {
 
 export default function Home() {
     const [modal, setModal] = useState<Modals>(Modals.NONE)
-    const { editPerson, setEditPerson } = useUiStore((state) => state);
-    const { people, marriages } = useFamilyStore((state) => state);
+    const {editPerson, setEditPerson} = useUiStore((state) => state);
+    const {people, marriages, children} = useFamilyStore((state) => state);
 
     const familyId = 3;
 
@@ -35,15 +33,17 @@ export default function Home() {
         setEditPerson(undefined);
         setModal(Modals.NONE);
     }
-  return (
-      <main>
-        <FamilyTree id={familyId}></FamilyTree>
-          <div className="absolute bottom-10 left-[50%]">
-              <Menu createPerson={() => setModal(Modals.NEW_PERSON)}></Menu>
-          </div>
-          {
-              (modal === Modals.NEW_PERSON || modal === Modals.EDIT_PERSON) && familyId && <EditPersonModal familyId={familyId} person={editPerson} marriages={marriages} members={people} onClose={modalClose}></EditPersonModal>
-          }
-    </main>
-  );
+    return (
+        <main>
+            <FamilyTree id={familyId}></FamilyTree>
+            <div className="absolute bottom-10 left-[50%]">
+                <Menu createPerson={() => setModal(Modals.NEW_PERSON)}></Menu>
+            </div>
+            {
+                (modal === Modals.NEW_PERSON || modal === Modals.EDIT_PERSON) && familyId &&
+                <EditPersonModal familyId={familyId} children={children} person={editPerson} marriages={marriages}
+                                 members={people} onClose={modalClose}></EditPersonModal>
+            }
+        </main>
+    );
 }

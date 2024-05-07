@@ -161,3 +161,31 @@ export const deleteMarriage = async (family: number, id: number): Promise<void> 
         throw new Error(`Failed to delete marriage: ${error}`);
     }
 }
+export const createChild = async (family: number, child: Child): Promise<Child> => {
+    try {
+        const result = await sql<{ id: number }>`
+            INSERT INTO family_children (familyid, childid, marriageid)
+            VALUES (${family}, ${child.childid}, ${child.marriageid}) RETURNING id`;
+
+        return {
+            ...child,
+            id: result.rows[0].id,
+        };
+    } catch (error) {
+        console.error('Failed to create child', error);
+        throw new Error(`Failed to create child: ${error}`);
+    }
+}
+
+export const deleteChild = async (family: number, id: number): Promise<void> => {
+    try {
+        const result = await sql<{ id: number }>`
+            DELETE
+            FROM family_children
+            WHERE familyid = ${family}
+              and id = ${id}`;
+    } catch (error) {
+        console.error('Failed to delete child', error);
+        throw new Error(`Failed to delete child: ${error}`);
+    }
+}

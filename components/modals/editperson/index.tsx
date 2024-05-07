@@ -2,10 +2,18 @@ import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from "@nextui-
 import {Autocomplete, AutocompleteItem, Button, DatePicker, Input, Spinner} from "@nextui-org/react";
 import {ModalProps} from "@/components/modals/base";
 import {useState} from "react";
-import {createMarriage, createPerson, deleteMarriage, deletePerson, updatePerson} from "@/lib/family";
+import {
+    createChild,
+    createMarriage,
+    createPerson,
+    deleteChild,
+    deleteMarriage,
+    deletePerson,
+    updatePerson
+} from "@/lib/family";
 import {ToastType} from "@/stores/toasts/model";
 import {useToastsStore} from "@/stores/toasts";
-import {Marriage, Person, PersonBase} from "@/stores/family/model";
+import {Child, Marriage, Person, PersonBase} from "@/stores/family/model";
 import {Controller, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {parseDate} from "@internationalized/date";
@@ -17,6 +25,7 @@ interface EditPersonModalProps extends ModalProps {
     person?: Person,
     marriages: Marriage[],
     members: Person[],
+    children: Child[],
 }
 
 const personSchema = yup.object({
@@ -33,14 +42,19 @@ const marriageSchema = yup.object({
     partner: yup.number(),
     city: yup.string(),
     date: yup.mixed(),
+});
+
+const parentsSchema = yup.object({
+    marriage: yup.number(),
 })
 
 const schema = yup.object({
     person: personSchema,
     marriage: marriageSchema,
-})
+    parents: parentsSchema,
+});
 
-const EditPersonModal = ({onClose, familyId, person, marriages, members}: EditPersonModalProps) => {
+const EditPersonModal = ({onClose, familyId, person, marriages, members, children}: EditPersonModalProps) => {
     const [personFormValue, setPersonFormValue] = useState<PersonBase | undefined>();
     const [loading, setLoading] = useState<boolean>(false);
     const {addToast} = useToastsStore((state) => state);
@@ -48,16 +62,28 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members}: EditPe
         addPerson: storeAddPerson,
         updatePerson: storeUpdatePerson,
         deletePerson: storeDeletePerson,
-        addMarriage,
+        addMarriage: storeAddMarriage,
         deleteMarriage: storeDeleteMarriage,
+        addChild: storeAddChild,
+        deleteChild: storeDeleteChild,
     } = useFamilyStore((state) => state);
+    const getPerson = (id: number): Person | undefined => members.find((p: Person) => p.id === id);
 
+    const marriageLabels = marriages.map((m: Marriage) => {
+        const p1 = m.p1 ? getPerson(m.p1) : undefined;
+        const p2 = m.p2 ? getPerson(m.p2) : undefined;
+        return {
+            id: m.id,
+            label: `${p1?.firstname} ${p1?.lastname} - ${p2?.firstname} ${p2?.lastname}`
+        }
 
-    const getMarriage = (person?: Person): Marriage | undefined => marriages.find((m: Marriage) => m.p1 === person.id || m.p2 === person.id)
+    });
+
+    const getMarriage = (id?: number): Marriage | undefined => marriages.find((m: Marriage) => m.p1 === id || m.p2 === id)
 
     const getMarriageData = (person?: Person) => {
         if (person) {
-            const marriage: Marriage | undefined = getMarriage(person);
+            const marriage: Marriage | undefined = getMarriage(person?.id);
             if (marriage) {
                 return {
                     partner: marriage.p1 === person.id ? marriage.p2 : marriage.p1,
@@ -72,6 +98,22 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members}: EditPe
 
     }
 
+    const getChild = (id?: number): Child | undefined => children.find((c: Child) => c.childid === id);
+    const getParentsData = (person?: Person) => {
+        if (person) {
+            const child: Child | undefined = getChild(person?.id);
+            console.log("MARRAIAGE", child, person, marriageLabels)
+            if (child) {
+                return {
+                    marriage: child.marriageid,
+                }
+            }
+        }
+        return {
+            marriage: undefined,
+        }
+    }
+
     const {register, control, watch, getValues, formState} = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
@@ -84,7 +126,8 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members}: EditPe
                 deathdate: person?.deathdate ? parseDate(moment(person.deathdate).format('YYYY-MM-DD')) : undefined,
                 comments: person?.comments
             },
-            marriage: getMarriageData(person)
+            marriage: getMarriageData(person),
+            parents: getParentsData(person)
         }
     });
 
@@ -166,22 +209,39 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members}: EditPe
     const submitMarriage = async (person: Person) => {
         if (formState.isValid && familyId) {
             const {partner, city, date} = getValues().marriage;
+            const existingMarriage = getMarriage(person?.id);
+            if (existingMarriage && existingMarriage.id) {
+                await deleteMarriage(familyId, existingMarriage.id);
+                storeDeleteMarriage(existingMarriage.id);
+            }
             if (partner && partner > 0) {
-                const existingMarriage = getMarriage(person)
-                if (existingMarriage && existingMarriage.id) {
-                    await deleteMarriage(familyId, existingMarriage.id);
-                    storeDeleteMarriage(existingMarriage.id);
-                }
-
                 const marriage = await createMarriage(familyId, {
-                    p1: person.id,
+                    p1: person.id || 0,
                     p2: partner,
                     city,
                     date: date ? moment(date.toDate()).format("YYYY/MM/DD") : undefined
                 });
-
-                addMarriage(marriage);
+                storeAddMarriage(marriage);
             }
+
+        }
+    }
+    const submitParents = async (person: Person) => {
+        if (formState.isValid && familyId) {
+            const {marriage} = getValues().parents;
+            const existingChild = getChild(person?.id);
+            if (existingChild && existingChild.id) {
+                await deleteChild(familyId, existingChild.id);
+                storeDeleteChild(existingChild.id);
+            }
+            if (marriage && marriage > 0) {
+                const child = await createChild(familyId, {
+                    childid: person.id || 0,
+                    marriageid: marriage,
+                });
+                storeAddChild(child);
+            }
+
         }
     }
 
@@ -189,6 +249,7 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members}: EditPe
         const person = await submitPerson();
         if (person) {
             await submitMarriage(person);
+            await submitParents(person);
         }
     }
 
@@ -252,6 +313,21 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members}: EditPe
                                     <Input label="Stad" {...register("marriage.city")} />
                                 </div>
                             }
+                            <h3 className="p-2 font-bold text-neutral-500 uppercase text-sm">Ouders</h3>
+                            <Controller render={({field}) =>
+                                // @ts-ignore
+                                <Autocomplete {...field} label="Kind van" placeholder="Selecteer huwelijk"
+                                              onSelectionChange={(key: any) => field.onChange(+key)}
+                                              selectedKey={`${field.value}`}
+                                >
+                                    {marriageLabels.map((m) => (
+                                        <AutocompleteItem key={m.id || 0} value={m.id || 0}>
+                                            {m.label}
+                                        </AutocompleteItem>
+                                    ))}
+                                </Autocomplete>
+
+                            } name={"parents.marriage"} control={control}/>
                             <h3 className="p-2 font-bold text-neutral-500 uppercase text-sm"> Extra</h3>
                             <Input label="Extra informatie" {...register("person.comments")}></Input>
                         </ModalBody>

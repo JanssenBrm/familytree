@@ -21,6 +21,8 @@ export type FamilyActions = {
     addMarriage: (marriage: Marriage) => void,
     updateMarriage: (id: number, marriage: Marriage) => void,
     deleteMarriage: (id: number) => void,
+    addChild: (child: Child) => void,
+    deleteChild: (id: number) => void,
 }
 
 export type FamilyStore = FamilyState & FamilyActions;
@@ -56,7 +58,9 @@ export const createFamilyStore = (
                 ...marriage
             }) : m)
         })),
-        deleteMarriage: (id: number) => set((state) => ({ marriages: [...state.marriages].filter(m => m.id !== id)}))
+        deleteMarriage: (id: number) => set((state) => ({ marriages: [...state.marriages].filter(m => m.id !== id)})),
+        addChild: (child: Child) => set((state) => ({ children: [...state.children, child]})),
+        deleteChild: (id: number) => set((state) => ({ children: [...state.children].filter(c => c.id !== id)}))
     }))
 }
 
