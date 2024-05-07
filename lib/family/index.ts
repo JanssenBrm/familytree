@@ -126,7 +126,7 @@ export const deletePerson = async (family: number, id: number): Promise<void> =>
         await sql`
             DELETE
             FROM family_members
-            WHERE familyid = ${family} && id = ${id}`;
+            WHERE familyid = ${family} and id = ${id}`;
     } catch (error) {
         console.error('Failed to delete person', error);
         throw new Error(`Failed to delete person: ${error}`);

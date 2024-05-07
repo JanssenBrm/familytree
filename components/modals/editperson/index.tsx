@@ -169,6 +169,19 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
         try {
             setLoading(true);
             if (familyId && person?.id) {
+
+                const child = getChild(person?.id);
+                if (child && child.id) {
+                    await deleteChild(familyId, child.id);
+                    storeDeleteChild(child.id);
+                }
+
+                const marriage = getMarriage(person?.id);
+                if (marriage && marriage.id) {
+                    await deleteMarriage(familyId, marriage.id);
+                    storeDeleteMarriage(marriage.id);
+                }
+
                 await deletePerson(familyId, person.id)
                 storeDeletePerson(person.id);
                 onClose();
@@ -255,7 +268,7 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
 
     return (
         <Modal isOpen={true} onClose={onClose} backdrop="blur">
-            <ModalContent>
+            <ModalContent className="max-h-[75vh]">
                 {(onClose) => (
                     <>
                         <ModalHeader className="flex flex-col gap-1">
