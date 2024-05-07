@@ -47,6 +47,7 @@ const Search = ({nodes}: SearchProps) => {
                 onValueChange={setSearch}
                 size="md"
                 variant="bordered"
+                className="bg-white"
                 startContent={
                     <FaSearch/>
                 }
