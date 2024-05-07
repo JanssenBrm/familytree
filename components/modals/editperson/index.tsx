@@ -2,10 +2,10 @@ import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from "@nextui-
 import {Autocomplete, AutocompleteItem, Button, DatePicker, Input, Spinner} from "@nextui-org/react";
 import {ModalProps} from "@/components/modals/base";
 import {useState} from "react";
-import {createMarriage, createPerson, deletePerson, updatePerson} from "@/lib/family";
+import {createMarriage, createPerson, deleteMarriage, deletePerson, updatePerson} from "@/lib/family";
 import {ToastType} from "@/stores/toasts/model";
 import {useToastsStore} from "@/stores/toasts";
-import {Person, PersonBase} from "@/stores/family/model";
+import {Marriage, Person, PersonBase} from "@/stores/family/model";
 import {Controller, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {parseDate} from "@internationalized/date";
@@ -15,6 +15,7 @@ import {useFamilyStore} from "@/stores/family";
 
 interface EditPersonModalProps extends ModalProps {
     person?: Person,
+    marriages: Marriage[],
     members: Person[],
 }
 
@@ -39,11 +40,37 @@ const schema = yup.object({
     marriage: marriageSchema,
 })
 
-const EditPersonModal = ({onClose, familyId, person, members}: EditPersonModalProps) => {
+const EditPersonModal = ({onClose, familyId, person, marriages, members}: EditPersonModalProps) => {
     const [personFormValue, setPersonFormValue] = useState<PersonBase | undefined>();
     const [loading, setLoading] = useState<boolean>(false);
     const {addToast} = useToastsStore((state) => state);
-    const {addPerson: storeAddPerson, updatePerson: storeUpdatePerson, deletePerson: storeDeletePerson} = useFamilyStore((state) => state);
+    const {
+        addPerson: storeAddPerson,
+        updatePerson: storeUpdatePerson,
+        deletePerson: storeDeletePerson,
+        addMarriage,
+        deleteMarriage: storeDeleteMarriage,
+    } = useFamilyStore((state) => state);
+
+
+    const getMarriage = (person?: Person): Marriage | undefined => marriages.find((m: Marriage) => m.p1 === person.id || m.p2 === person.id)
+
+    const getMarriageData = (person?: Person) => {
+        if (person) {
+            const marriage: Marriage | undefined = getMarriage(person);
+            if (marriage) {
+                return {
+                    partner: marriage.p1 === person.id ? marriage.p2 : marriage.p1,
+                    date: marriage.date ? parseDate(moment(marriage.date).format('YYYY-MM-DD')) : undefined
+                }
+            }
+        }
+        return {
+            partner: undefined,
+            date: undefined
+        }
+
+    }
 
     const {register, control, watch, getValues, formState} = useForm({
         resolver: yupResolver(schema),
@@ -57,10 +84,7 @@ const EditPersonModal = ({onClose, familyId, person, members}: EditPersonModalPr
                 deathdate: person?.deathdate ? parseDate(moment(person.deathdate).format('YYYY-MM-DD')) : undefined,
                 comments: person?.comments
             },
-            marriage: {
-                partner: undefined,
-                date: undefined,
-            }
+            marriage: getMarriageData(person)
         }
     });
 
@@ -143,12 +167,20 @@ const EditPersonModal = ({onClose, familyId, person, members}: EditPersonModalPr
         if (formState.isValid && familyId) {
             const {partner, city, date} = getValues().marriage;
             if (partner && partner > 0) {
-                await createMarriage(familyId, {
+                const existingMarriage = getMarriage(person)
+                if (existingMarriage && existingMarriage.id) {
+                    await deleteMarriage(familyId, existingMarriage.id);
+                    storeDeleteMarriage(existingMarriage.id);
+                }
+
+                const marriage = await createMarriage(familyId, {
                     p1: person.id,
                     p2: partner,
                     city,
                     date: date ? moment(date.toDate()).format("YYYY/MM/DD") : undefined
                 });
+
+                addMarriage(marriage);
             }
         }
     }
@@ -196,6 +228,7 @@ const EditPersonModal = ({onClose, familyId, person, members}: EditPersonModalPr
                                 // @ts-ignore
                                 <Autocomplete {...field} label="Getrouwd met" placeholder="Selecteer persoon"
                                               onSelectionChange={(key: any) => field.onChange(+key)}
+                                              selectedKey={`${field.value}`}
                                 >
                                     {members.map(m => ({
                                         ...m,

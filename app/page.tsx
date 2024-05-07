@@ -18,7 +18,7 @@ export enum Modals {
 export default function Home() {
     const [modal, setModal] = useState<Modals>(Modals.NONE)
     const { editPerson, setEditPerson } = useUiStore((state) => state);
-    const { people } = useFamilyStore((state) => state);
+    const { people, marriages } = useFamilyStore((state) => state);
 
     const familyId = 3;
 
@@ -42,7 +42,7 @@ export default function Home() {
               <Menu createPerson={() => setModal(Modals.NEW_PERSON)}></Menu>
           </div>
           {
-              (modal === Modals.NEW_PERSON || modal === Modals.EDIT_PERSON) && familyId && <EditPersonModal familyId={familyId} person={editPerson} members={people} onClose={modalClose}></EditPersonModal>
+              (modal === Modals.NEW_PERSON || modal === Modals.EDIT_PERSON) && familyId && <EditPersonModal familyId={familyId} person={editPerson} marriages={marriages} members={people} onClose={modalClose}></EditPersonModal>
           }
     </main>
   );

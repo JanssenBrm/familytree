@@ -124,8 +124,9 @@ export const updatePerson = async (family: number, id: number, person: PersonBas
 export const deletePerson = async (family: number, id: number): Promise<void> => {
     try {
         await sql`
-            DELETE FROM family_members
-            WHERE id = ${id}`;
+            DELETE
+            FROM family_members
+            WHERE familyid = ${family} && id = ${id}`;
     } catch (error) {
         console.error('Failed to delete person', error);
         throw new Error(`Failed to delete person: ${error}`);
@@ -145,5 +146,18 @@ export const createMarriage = async (family: number, marriage: Marriage): Promis
     } catch (error) {
         console.error('Failed to create marriage', error);
         throw new Error(`Failed to create marriage: ${error}`);
+    }
+}
+
+export const deleteMarriage = async (family: number, id: number): Promise<void> => {
+    try {
+        const result = await sql<{ id: number }>`
+            DELETE
+            FROM family_marriages
+            WHERE familyid = ${family}
+              and id = ${id}`;
+    } catch (error) {
+        console.error('Failed to delete marriage', error);
+        throw new Error(`Failed to delete marriage: ${error}`);
     }
 }
