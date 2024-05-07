@@ -52,7 +52,7 @@ export default function Home() {
     }
     return (
         <main>
-            <div className="absolute top-2 left-2 z-50">
+            <div className="absolute top-2 left-2 z-50 w-[96%] md:w-auto flex items-center justify-center">
                 <Tabs selectedKey={view} onSelectionChange={(key: any) => setView(key)}>
                     <Tab key={View.TREE} title={
                         <div className="flex items-center space-x-2">

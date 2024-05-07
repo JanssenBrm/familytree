@@ -39,7 +39,7 @@ const Search = ({nodes}: SearchProps) => {
     }, [search])
 
     return (
-        <div className="absolute top-2 right-2 z-50 left-2 w-[96%] md:w-80 md:left-auto">
+        <div className="absolute top-14 md:top-2 right-2 z-50 left-2 w-[96%] md:w-80 md:left-auto">
             <Input
                 isClearable
                 placeholder="Zoeken..."

@@ -268,7 +268,7 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
 
     return (
         <Modal isOpen={true} onClose={onClose} backdrop="blur">
-            <ModalContent className="max-h-[75vh]">
+            <ModalContent className="md:max-h-[75vh] max-h-[95vh]">
                 {(onClose) => (
                     <>
                         <ModalHeader className="flex flex-col gap-1">
