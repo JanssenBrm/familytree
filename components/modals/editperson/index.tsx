@@ -1,5 +1,5 @@
 import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from "@nextui-org/modal";
-import {Autocomplete, AutocompleteItem, Button, DatePicker, Input, Spinner} from "@nextui-org/react";
+import {Autocomplete, AutocompleteItem, Button, CalendarDate, DatePicker, Input, Spinner} from "@nextui-org/react";
 import {ModalProps} from "@/components/modals/base";
 import {useState} from "react";
 import {
@@ -29,31 +29,31 @@ interface EditPersonModalProps extends ModalProps {
     children: Child[],
 }
 
-const personSchema = yup.object({
-    firstname: yup.string().required(),
-    lastname: yup.string().required(),
-    birthcity: yup.string().required(),
-    birthdate: yup.mixed().required(),
-    deathcity: yup.string(),
-    deathdate: yup.mixed(),
-    comments: yup.string(),
-});
-
-const marriageSchema = yup.object({
-    partner: yup.number(),
-    city: yup.string(),
-    date: yup.mixed(),
-});
-
-const parentsSchema = yup.object({
-    marriage: yup.number(),
-})
-
-const schema = yup.object({
-    person: personSchema,
-    marriage: marriageSchema,
-    parents: parentsSchema,
-});
+// const personSchema = yup.object({
+//     firstname: yup.string().required(),
+//     lastname: yup.string().required(),
+//     birthcity: yup.string().required(),
+//     birthdate: yup.mixed().required(),
+//     deathcity: yup.string(),
+//     deathdate: yup.mixed(),
+//     comments: yup.string(),
+// });
+//
+// const marriageSchema = yup.object({
+//     partner: yup.number(),
+//     city: yup.string(),
+//     date: yup.mixed(),
+// });
+//
+// const parentsSchema = yup.object({
+//     marriage: yup.number(),
+// })
+//
+// const schema = yup.object({
+//     person: personSchema,
+//     marriage: marriageSchema,
+//     parents: parentsSchema,
+// });
 
 const EditPersonModal = ({onClose, familyId, person, marriages, members, children}: EditPersonModalProps) => {
     const [personFormValue, setPersonFormValue] = useState<PersonBase | undefined>();
@@ -118,15 +118,14 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
     }
 
     const {register, control, watch, getValues, formState} = useForm({
-        resolver: yupResolver(schema),
         defaultValues: {
             person: {
                 firstname: person?.firstname,
                 lastname: person?.lastname,
                 birthcity: person?.birthcity,
-                birthdate: person?.birthdate ? parseDate(moment(person.birthdate).format('YYYY-MM-DD')) : undefined,
+                birthdate: person?.birthdate ? parseDate(moment(person.birthdate.length === 4 ? `${person.birthdate}/01/01` : person.birthdate).format('YYYY-MM-DD')) : undefined,
                 deathcity: person?.deathcity,
-                deathdate: person?.deathdate ? parseDate(moment(person.deathdate).format('YYYY-MM-DD')) : undefined,
+                deathdate: person?.deathdate ? parseDate(moment(person.deathdate.length === 4 ? `${person.deathdate}/01/01` : person.deathdate).format('YYYY-MM-DD')) : undefined,
                 comments: person?.comments
             },
             marriage: getMarriageData(person),
@@ -204,6 +203,7 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
         let result = null;
         if (formState.isValid && familyId) {
             const values = getValues().person;
+            // @ts-ignore
             const formValue: PersonBase = {
                 ...values,
                 // @ts-ignore
@@ -225,6 +225,7 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
     const submitMarriage = async (person: Person) => {
         if (formState.isValid && familyId) {
             const {partner, city, date} = getValues().marriage;
+            // @ts-ignore
             const marriageDate = date ? moment(date.toDate()).format("YYYY/MM/DD") : undefined;
             const existingMarriage = getMarriage(person?.id);
             if (existingMarriage && existingMarriage.id && (existingMarriage.p1 === partner || existingMarriage.p2 === partner) && (existingMarriage.date === marriageDate) && existingMarriage.city === city) {
@@ -282,6 +283,8 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
         }
     }
 
+    console.log(formState, getValues());
+
     return (
         <Modal isOpen={true} onClose={onClose} backdrop="blur">
             <ModalContent className="md:max-h-[75vh] max-h-[95vh]">
@@ -310,7 +313,7 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
                                     control={control}
                                     render={({field}) => <DatePicker label="Datum" {...field} />}
                                 />
-                                <Input label="Stad" {...register("person.deathcity", {required: true})} />
+                                <Input label="Stad" {...register("person.deathcity")} />
                             </div>
                             <h3 className="p-2 font-bold text-neutral-500 uppercase text-sm">Huwelijk</h3>
 
