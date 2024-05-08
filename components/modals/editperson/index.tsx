@@ -283,8 +283,6 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
         }
     }
 
-    console.log(formState, getValues());
-
     return (
         <Modal isOpen={true} onClose={onClose} backdrop="blur">
             <ModalContent className="md:max-h-[75vh] max-h-[95vh]">
