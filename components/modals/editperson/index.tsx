@@ -181,7 +181,7 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
             const formValue: PersonBase = {
                 ...values,
                 // @ts-ignore
-                birthdate: moment(values.birthdate.toDate()).format("YYYY/MM/DD"),
+                birthdate: values.birthdate ? moment(values.birthdate.toDate()).format("YYYY/MM/DD") : undefined,
                 // @ts-ignore
                 deathdate: values.deathdate ? moment(values.deathdate.toDate()).format("YYYY/MM/DD") : undefined
             }
@@ -273,10 +273,9 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
                                 <Controller
                                     name="person.birthdate"
                                     control={control}
-                                    rules={{required: true}}
                                     render={({field}) => <DatePicker label="Datum" {...field} />}
                                 />
-                                <Input label="Stad" {...register("person.birthcity", {required: true})} />
+                                <Input label="Stad" {...register("person.birthcity")} />
                             </div>
                             <h3 className="p-2 font-bold text-neutral-500 uppercase text-sm">Overlijden</h3>
                             <div className="flex flex-row gap-4">

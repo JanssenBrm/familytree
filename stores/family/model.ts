@@ -4,15 +4,15 @@ export interface PersonBase {
     picture?: string;
     firstname: string;
     lastname: string;
-    birthcity: string;
-    birthdate: string;
+    birthcity?: string;
+    birthdate?: string;
     deathcity?: string;
     deathdate?: string;
     comments?: string;
 }
 
 export interface Person extends PersonBase {
-    age: number;
+    age?: number;
     disconnected?: boolean
 }
 

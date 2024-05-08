@@ -13,7 +13,7 @@ const Person = (({data}: { data: Person }) => {
 
     return (
         <div
-            className={clsx("px-4 py-2 shadow-md rounded-md w-80 hover:cursor-pointer", {
+            className={clsx("px-4 py-2 min-h-28 shadow-md rounded-md w-80 hover:cursor-pointer", {
                     "border-red-500 border-3 bg-red-50": !!data.disconnected,
                     "border-gray-200 border-2 bg-white": !data.disconnected
                 }
@@ -26,18 +26,15 @@ const Person = (({data}: { data: Person }) => {
                 </div>
                 <div className="ml-2">
                     <div className="text-lg font-bold">{data.lastname}</div>
-                    <div className="mt-0">{data.firstname} ({data.age})</div>
+                    <div className="mt-0">{data.firstname} {data.age ? `(${data.age})` : ''}</div>
                     <div className="flex flex-col mt-2">
                         <div className="text-gray-500 text-xs flex items-center"><FaRegCircle size={8}
-                                                                                              className="mr-1.5 ml-0.5"/> {data.birthcity}, {data.birthdate.length === 4 ? data.birthdate : moment(data.birthdate).format('DD MMMM YYYY')}
+                                                                                              className="mr-1.5 ml-0.5"/> {data.birthcity || 'Onbekend'}, {data.birthdate ? (data.birthdate.length === 4 ? data.birthdate : moment(data.birthdate).format('DD MMMM YYYY')) : 'Onbekend'}
                         </div>
-                        {
-                            data.deathdate && data.deathdate &&
-                            <div className="text-gray-500 text-xs flex items-center"><CgCross
-                                className="mr-1"/> {data.deathcity} {data.deathcity ? ', ' : ''}{data.deathdate.length === 4 ? data.deathdate : moment(data.deathdate).format('DD MMMM YYYY')}
-                            </div>
-                        }
 
+                        <div className="text-gray-500 text-xs flex items-center"><CgCross
+                            className="mr-1"/> {data.deathcity || 'Onbekend'}, {data.deathdate ? (data.deathdate.length === 4 ? data.deathdate : moment(data.deathdate).format('DD MMMM YYYY')) : 'Onbekend'}
+                        </div>
                     </div>
                 </div>
             </div>

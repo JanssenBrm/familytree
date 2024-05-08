@@ -29,11 +29,11 @@ const Statistics = ({people, marriages, children}: StatisticsProps) => {
     const [youngest, setYoungest] = useState<Person | null>();
 
     const getOldest = () => {
-        const sorted = people.sort((p1: Person, p2: Person) => p1.age > p2.age ? -1 : 1);
+        const sorted = people.filter(p => !!p.age).sort((p1: Person, p2: Person) => p1.age > p2.age ? -1 : 1);
         setOldest(sorted[0])
     }
     const getYoungest = () => {
-        const sorted = people.sort((p1: Person, p2: Person) => p1.age > p2.age ? 1 : -1);
+        const sorted = people.filter(p => !!p.age).sort((p1: Person, p2: Person) => p1.age > p2.age ? 1 : -1);
         setYoungest(sorted[0])
     }
 

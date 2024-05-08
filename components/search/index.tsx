@@ -64,7 +64,7 @@ const Search = ({nodes}: SearchProps) => {
                                 <span>{n.data?.lastname} {n.data?.firstname}</span>
                                 <div className="text-gray-500 text-xs flex items-center">
                                     <FaRegCircle size={8}
-                                                 className="mr-1.5 ml-0.5"/> {n.data?.birthcity}, {n.data?.birthdate.length === 4 ? n.data?.birthdate : moment(n.data?.birthdate).format('DD MMMM YYYY')}
+                                                 className="mr-1.5 ml-0.5"/> {n.data?.birthcity || 'Onbekend'}, {n.data?.birthdate ? (n.data?.birthdate.length === 4 ? n.data?.birthdate : moment(n.data?.birthdate).format('DD MMMM YYYY')) : 'Onbekend'}
                                 </div>
                             </div>
                         ))

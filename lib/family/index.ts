@@ -11,19 +11,21 @@ const calculateAge = (members: PersonBase[]): Person[] => members.map(m => {
     }
 })
 
-const getAge = (person: PersonBase): number => {
-    let birthYear = person.birthdate.length === 4 ? +person.birthdate : moment(person.birthdate).year();
+const getAge = (person: PersonBase): number | undefined => {
+    let birthYear = person.birthdate ? (person.birthdate.length === 4 ? +person.birthdate : moment(person.birthdate).year()) : 0;
     let endYear = moment().year();
 
-
-    if (person.deathdate) {
-        if (person.deathdate.length === 4) {
-            endYear = +person.deathdate;
-        } else {
-            endYear = moment(person.deathdate).year();
+    if (birthYear && person.deathdate) {
+        if (person.deathdate) {
+            if (person.deathdate.length === 4) {
+                endYear = +person.deathdate;
+            } else {
+                endYear = moment(person.deathdate).year();
+            }
+            return endYear - birthYear;
         }
     }
-    return endYear - birthYear;
+    return undefined;
 }
 
 const getPeople = async (id: number): Promise<Person[]> => {
