@@ -10,7 +10,8 @@ import {getFamilyData} from "@/lib/family";
 import Map from "@/components/map";
 import {Tab, Tabs} from "@nextui-org/react";
 import { GiFamilyTree } from "react-icons/gi";
-import {FaMap} from "react-icons/fa";
+import {FaChartArea, FaMap} from "react-icons/fa";
+import Statistics from "@/components/statistics";
 
 export enum Modals {
     NONE,
@@ -20,7 +21,8 @@ export enum Modals {
 
 export enum View {
     MAP = 'map',
-    TREE = 'tree'
+    TREE = 'tree',
+    STATISTICS = 'statistics'
 }
 
 export default function Home() {
@@ -66,12 +68,22 @@ export default function Home() {
                             <span>Kaart</span>
                         </div>
                     }/>
+                    <Tab key={View.STATISTICS} title={
+                        <div className="flex items-center space-x-2">
+                            <FaChartArea />
+                            <span>Statistieken</span>
+                        </div>
+                    }/>
                 </Tabs>
             </div>
             {view === View.TREE &&
                 <FamilyTree id={familyId} people={people} marriages={marriages} children={children}></FamilyTree>}
             {view === View.MAP &&
                 <Map people={people}/>
+            }
+
+            {view === View.STATISTICS &&
+                <Statistics people={people} marriages={marriages} children={children}/>
             }
 
             <div className="absolute bottom-10 left-[50%]">
