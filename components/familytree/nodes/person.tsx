@@ -29,11 +29,13 @@ const Person = (({data}: { data: Person }) => {
                     <div className="mt-0">{data.firstname} {data.age ? `(${data.age})` : ''}</div>
                     <div className="flex flex-col mt-2">
                         <div className="text-gray-500 text-xs flex items-center"><FaRegCircle size={8}
-                                                                                              className="mr-1.5 ml-0.5"/> {data.birthcity || 'Onbekend'}, {data.birthdate ? (data.birthdate.length === 4 ? data.birthdate : moment(data.birthdate).format('DD MMMM YYYY')) : 'Onbekend'}
+                                                                                              className="mr-1.5 ml-0.5"/>
+                            {data.birthdate ? (data.birthdate.length === 4 ? data.birthdate : moment(data.birthdate).format('DD/MM/YYYY')) : 'Onbekend'}, {data.birthcity || 'Onbekend'}
                         </div>
 
                         <div className="text-gray-500 text-xs flex items-center"><CgCross
-                            className="mr-1"/> {data.deathcity || 'Onbekend'}, {data.deathdate ? (data.deathdate.length === 4 ? data.deathdate : moment(data.deathdate).format('DD MMMM YYYY')) : 'Onbekend'}
+                            className="mr-1"/>
+                            {data.deathdate ? (data.deathdate.length === 4 ? data.deathdate : moment(data.deathdate).format('DD/MM/YYYY')) : 'Onbekend'}, {data.deathcity || 'Onbekend'}
                         </div>
                     </div>
                 </div>
