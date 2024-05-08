@@ -8,12 +8,12 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 export const nodeDims = {
     'marriage': {
-        width: 172,
-        height: 52,
+        width: 204,
+        height: 100,
     },
     'member': {
         width: 284,
-        height: 94,
+        height: 144,
     }
 }
 export const getLayoutedGraph = (nodes: Node[], edges: Edge[]): { nodes: Node<any>[], edges: Edge[] } => {
