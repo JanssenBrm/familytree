@@ -29,32 +29,6 @@ interface EditPersonModalProps extends ModalProps {
     children: Child[],
 }
 
-// const personSchema = yup.object({
-//     firstname: yup.string().required(),
-//     lastname: yup.string().required(),
-//     birthcity: yup.string().required(),
-//     birthdate: yup.mixed().required(),
-//     deathcity: yup.string(),
-//     deathdate: yup.mixed(),
-//     comments: yup.string(),
-// });
-//
-// const marriageSchema = yup.object({
-//     partner: yup.number(),
-//     city: yup.string(),
-//     date: yup.mixed(),
-// });
-//
-// const parentsSchema = yup.object({
-//     marriage: yup.number(),
-// })
-//
-// const schema = yup.object({
-//     person: personSchema,
-//     marriage: marriageSchema,
-//     parents: parentsSchema,
-// });
-
 const EditPersonModal = ({onClose, familyId, person, marriages, members, children}: EditPersonModalProps) => {
     const [personFormValue, setPersonFormValue] = useState<PersonBase | undefined>();
     const [loading, setLoading] = useState<boolean>(false);
