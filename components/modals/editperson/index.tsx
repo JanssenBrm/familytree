@@ -9,6 +9,7 @@ import {
     deleteChild,
     deleteMarriage,
     deletePerson,
+    updateMarriage,
     updatePerson
 } from "@/lib/family";
 import {ToastType} from "@/stores/toasts/model";
@@ -63,6 +64,7 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
         updatePerson: storeUpdatePerson,
         deletePerson: storeDeletePerson,
         addMarriage: storeAddMarriage,
+        updateMarriage: storeUpdateMarriage,
         deleteMarriage: storeDeleteMarriage,
         addChild: storeAddChild,
         deleteChild: storeDeleteChild,
@@ -104,7 +106,6 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
     const getParentsData = (person?: Person) => {
         if (person) {
             const child: Child | undefined = getChild(person?.id);
-            console.log("MARRAIAGE", child, person, marriageLabels)
             if (child) {
                 return {
                     marriage: child.marriageid,
@@ -224,19 +225,32 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
     const submitMarriage = async (person: Person) => {
         if (formState.isValid && familyId) {
             const {partner, city, date} = getValues().marriage;
+            const marriageDate = date ? moment(date.toDate()).format("YYYY/MM/DD") : undefined;
             const existingMarriage = getMarriage(person?.id);
-            if (existingMarriage && existingMarriage.id) {
-                await deleteMarriage(familyId, existingMarriage.id);
-                storeDeleteMarriage(existingMarriage.id);
-            }
-            if (partner && partner > 0) {
-                const marriage = await createMarriage(familyId, {
-                    p1: person.id || 0,
-                    p2: partner,
+            if (existingMarriage && existingMarriage.id && (existingMarriage.p1 === partner || existingMarriage.p2 === partner) && (existingMarriage.date === marriageDate) && existingMarriage.city === city) {
+                console.warn("Skipping marriage as it is the same as the existing one")
+            } else if (existingMarriage && existingMarriage.id && (existingMarriage.p1 === partner || existingMarriage.p2 === partner)) {
+                const updatedMarriage: Marriage = await updateMarriage(familyId, existingMarriage.id, {
+                    ...existingMarriage,
                     city,
-                    date: date ? moment(date.toDate()).format("YYYY/MM/DD") : undefined
-                });
-                storeAddMarriage(marriage);
+                    date: marriageDate
+                })
+                storeUpdateMarriage(existingMarriage.id, updatedMarriage);
+
+            } else {
+                if (existingMarriage && existingMarriage.id) {
+                    await deleteMarriage(familyId, existingMarriage.id);
+                    storeDeleteMarriage(existingMarriage.id);
+                }
+                if (partner && partner > 0) {
+                    const marriage = await createMarriage(familyId, {
+                        p1: person.id || 0,
+                        p2: partner,
+                        city,
+                        date: marriageDate,
+                    });
+                    storeAddMarriage(marriage);
+                }
             }
 
         }
@@ -361,7 +375,8 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
                                 </Button>
                                 <Button color="primary" isDisabled={!formState.isValid || loading}
                                         onPress={submitForm}>
-                                    {loading ? <Spinner size="sm" color="white"  /> : <span> {person ? 'Aanpassen' : 'Toevoegen'}</span>}
+                                    {loading ? <Spinner size="sm" color="white"/> :
+                                        <span> {person ? 'Aanpassen' : 'Toevoegen'}</span>}
                                 </Button>
 
                             </div>
