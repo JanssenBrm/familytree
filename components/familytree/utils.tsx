@@ -83,7 +83,7 @@ export const generateTreeData = (members: Person[], marriages: Marriage[], child
         // Process marriage
         const marriageId = `marriage-${marriage.p1}-${marriage.p2}`;
         [marriage.p1, marriage.p2].forEach((p) => {
-            if (!processed.includes(p)) {
+            if (!processed.includes(p) && p !== 0) {
                 const pNode = getNodeFromID(p, members, false);
                 if (pNode) {
                     nodes.push(pNode);

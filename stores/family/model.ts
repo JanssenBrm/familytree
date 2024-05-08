@@ -18,8 +18,8 @@ export interface Person extends PersonBase {
 
 export interface Marriage {
     id?: number;
-    p1: number;
-    p2: number;
+    p1?: number;
+    p2?: number;
     city?: string;
     date?: string;
 }

@@ -47,8 +47,8 @@ async function createMarriages(client) {
             (
                 id SERIAL NOT NULL PRIMARY KEY,
                 familyId INT NOT NULL,
-                p1 INT NOT NULL,
-                p2 INT NOT NULL, 
+                p1 INT,
+                p2 INT, 
                 city VARCHAR(255),
                 date VARCHAR(255),
                 FOREIGN KEY (familyId) REFERENCES family_families(id),

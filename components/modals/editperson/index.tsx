@@ -1,5 +1,5 @@
 import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from "@nextui-org/modal";
-import {Autocomplete, AutocompleteItem, Button, CalendarDate, DatePicker, Input, Spinner} from "@nextui-org/react";
+import {Autocomplete, AutocompleteItem, Button, DatePicker, Input, Spinner} from "@nextui-org/react";
 import {ModalProps} from "@/components/modals/base";
 import {useState} from "react";
 import {
@@ -16,10 +16,8 @@ import {ToastType} from "@/stores/toasts/model";
 import {useToastsStore} from "@/stores/toasts";
 import {Child, Marriage, Person, PersonBase} from "@/stores/family/model";
 import {Controller, useForm} from "react-hook-form";
-import {yupResolver} from "@hookform/resolvers/yup";
 import {parseDate} from "@internationalized/date";
 import moment from "moment";
-import * as yup from "yup";
 import {useFamilyStore} from "@/stores/family";
 
 interface EditPersonModalProps extends ModalProps {
@@ -50,7 +48,7 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
         const p2 = m.p2 ? getPerson(m.p2) : undefined;
         return {
             id: m.id,
-            label: `${p1?.firstname} ${p1?.lastname} - ${p2?.firstname} ${p2?.lastname}`
+            label: `${p1?.firstname || 'Onbekend'} ${p1?.lastname || 'Onbekend'} - ${p2?.firstname || 'Onbekend'} ${p2?.lastname || 'Onbekend'}`
         }
 
     });
@@ -217,15 +215,14 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
                     await deleteMarriage(familyId, existingMarriage.id);
                     storeDeleteMarriage(existingMarriage.id);
                 }
-                if (partner && partner > 0) {
-                    const marriage = await createMarriage(familyId, {
-                        p1: person.id || 0,
-                        p2: partner,
-                        city,
-                        date: marriageDate,
-                    });
-                    storeAddMarriage(marriage);
-                }
+
+                const marriage = await createMarriage(familyId, {
+                    p1: person.id === 0 ? undefined : person.id,
+                    p2: partner === 0 ? undefined : partner,
+                    city,
+                    date: marriageDate,
+                });
+                storeAddMarriage(marriage);
             }
 
         }
@@ -294,7 +291,8 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
                                               onSelectionChange={(key: any) => field.onChange(+key)}
                                               selectedKey={`${field.value}`}
                                 >
-                                    {members.map(m => ({
+
+                                    {[{id: 0, firstname: 'Onbekend', lastname: ''}, ...members].map(m => ({
                                         ...m,
                                         label: `${m.firstname} ${m.lastname}`
                                     })).map((m) => (
