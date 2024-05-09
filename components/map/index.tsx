@@ -64,7 +64,7 @@ const Map = ({people}: MapProps) => {
             source.setData(data);
         }
     }
-    const getLocation = (location: string) =>
+    const getLocation = (location: string): Promise<GeoJSON.Feature | null> =>
         fetch(`https://api.mapbox.com/search/geocode/v6/forward?q=${location}&access_token=${mapboxToken}`)
             .then((response) => response.json())
             .then((collection) => collection.features.find((f: any) => f.properties.context.country.country_code == "BE" && f.properties.name_preferred === location))
@@ -76,15 +76,17 @@ const Map = ({people}: MapProps) => {
                 .map((p: Person) => p.birthcity)
             Promise.all(locations
                 .filter((city: string, idx: number, cities: string[]) => cities.indexOf(city) === idx)
-                .map((location: string) => getLocation(location).catch((error) => {
-                    console.error(`Could not translate location ${location}`, error);
-                    addToast({
-                        message: `Sorry! Kon de locatie ${location} niet ophalen`,
-                        type: ToastType.ERROR
-                    });
-                    return undefined
-                }))
-            ).then((features: any) =>
+                .map((location: string) =>
+                    getLocation(location)
+                        .catch((error: any) => {
+                            console.error(`Could not translate location ${location}`, error);
+                            addToast({
+                                message: `Sorry! Kon de locatie ${location} niet ophalen`,
+                                type: ToastType.ERROR
+                            });
+                            return null;
+                        }))
+            ).then((features: (GeoJSON.Feature | null)[]) =>
                 features
                     .filter((feature: any) => !!feature)
                     .map((feature: any) =>
