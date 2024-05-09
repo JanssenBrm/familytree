@@ -111,7 +111,7 @@ const Map = ({people}: MapProps) => {
 
             })
         }
-    }, [map.current, people]);
+    }, [map.current, people, addToast]);
 
 
     useEffect(() => {

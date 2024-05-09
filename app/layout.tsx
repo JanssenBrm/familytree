@@ -6,6 +6,9 @@ import {RootStoreProvider} from "@/stores/root-store-provider";
 import {NextUIProvider} from "@nextui-org/react";
 import Toasts from "@/components/toasts";
 import {Providers} from "@/app/providers";
+import Menu from "@/components/menu";
+import {Modals} from "@/app/tree/page";
+import {useSearchParams} from "next/navigation";
 
 const inter = Inter({subsets: ["latin"]});
 

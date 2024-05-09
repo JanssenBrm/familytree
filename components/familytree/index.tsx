@@ -15,23 +15,23 @@ interface FamilyTreeProps {
     id?: number,
     people: Person[],
     marriages: Marriage[],
-    children: Child[]
+    childList: Child[]
 }
 
 const nodeTypes = {
     'member': PersonNode,
     'marriage': MarriageNode
 }
-const FamilyTree = ({id, people, marriages, children}: FamilyTreeProps) => {
+const FamilyTree = ({id, people, marriages, childList}: FamilyTreeProps) => {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
     useEffect(() => {
-        const {nodes, edges} = generateTreeData(people, marriages, children);
+        const {nodes, edges} = generateTreeData(people, marriages, childList);
         const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedGraph(nodes, edges);
         setNodes([...layoutedNodes])
         setEdges([...layoutedEdges]);
-    }, [people, marriages, children]);
+    }, [people, marriages, childList, setEdges, setNodes]);
 
 
     return (
@@ -50,10 +50,10 @@ const FamilyTree = ({id, people, marriages, children}: FamilyTreeProps) => {
 }
 
 
-const FamilyTreeProvider = ({id, people, marriages, children}: FamilyTreeProps) => {
+const FamilyTreeProvider = ({id, people, marriages, childList}: FamilyTreeProps) => {
     return (
         <ReactFlowProvider>
-            <FamilyTree id={id} people={people} marriages={marriages} children={children}/>
+            <FamilyTree id={id} people={people} marriages={marriages} childList={childList}/>
         </ReactFlowProvider>
     )
 }

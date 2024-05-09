@@ -20,10 +20,10 @@ const CustomLabelCard = ({title, value, center}: any) => {
 interface StatisticsProps {
     people: Person[],
     marriages: Marriage[],
-    children: Child[],
+    childList: Child[],
 }
 
-const Statistics = ({people, marriages, children}: StatisticsProps) => {
+const Statistics = ({people, marriages, childList}: StatisticsProps) => {
 
     const [oldest, setOldest] = useState<Person | null>();
     const [youngest, setYoungest] = useState<Person | null>();
@@ -40,7 +40,7 @@ const Statistics = ({people, marriages, children}: StatisticsProps) => {
     useEffect(() => {
         getOldest();
         getYoungest();
-    }, [people])
+    }, [people, getOldest, getYoungest])
 
     return (
         <div className="bg-gray-50 w-screen h-screen p-14 pt-20">

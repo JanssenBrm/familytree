@@ -27,8 +27,8 @@ const Toasts = () => {
 
     return <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[90%] md:w-96 z-[60]">
         {
-            toasts.map((t: Toast) => (
-                <div className={
+            toasts.map((t: Toast, index: number) => (
+                <div key={`toast-${index}`} className={
                     clsx('rounded-lg shadow-md px-5 py-2.5 text-sm transition-opacity ease-in-out mt-2',
                         {
                             'bg-danger text-danger-foreground': t.type === ToastType.ERROR,

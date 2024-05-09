@@ -24,10 +24,10 @@ interface EditPersonModalProps extends ModalProps {
     person?: Person,
     marriages: Marriage[],
     members: Person[],
-    children: Child[],
+    childList: Child[],
 }
 
-const EditPersonModal = ({onClose, familyId, person, marriages, members, children}: EditPersonModalProps) => {
+const EditPersonModal = ({onClose, familyId, person, marriages, members, childList}: EditPersonModalProps) => {
     const [personFormValue, setPersonFormValue] = useState<PersonBase | undefined>();
     const [loading, setLoading] = useState<boolean>(false);
     const {addToast} = useToastsStore((state) => state);
@@ -74,7 +74,7 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
 
     }
 
-    const getChild = (id?: number): Child | undefined => children.find((c: Child) => c.childid === id);
+    const getChild = (id?: number): Child | undefined => childList.find((c: Child) => c.childid === id);
     const getParentsData = (person?: Person) => {
         if (person) {
             const child: Child | undefined = getChild(person?.id);

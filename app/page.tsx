@@ -55,7 +55,7 @@ export default function Home() {
                 });
                 setLoading(false);
             })
-    }, []);
+    }, [addToast, initFamily]);
 
     useEffect(() => {
         if (editPerson !== undefined) {
@@ -94,13 +94,13 @@ export default function Home() {
                 </Tabs>
             </div>
             {view === View.TREE &&
-                <FamilyTree id={familyId} people={people} marriages={marriages} children={children}></FamilyTree>}
+                <FamilyTree id={familyId} people={people} marriages={marriages} childList={children}></FamilyTree>}
             {view === View.MAP &&
                 <Map people={people}/>
             }
 
             {view === View.STATISTICS &&
-                <Statistics people={people} marriages={marriages} children={children}/>
+                <Statistics people={people} marriages={marriages} childList={children}/>
             }
 
             {
@@ -114,7 +114,7 @@ export default function Home() {
                     </div>
                     {
                         (modal === Modals.NEW_PERSON || modal === Modals.EDIT_PERSON) && familyId &&
-                        <EditPersonModal familyId={familyId} children={children} person={editPerson}
+                        <EditPersonModal familyId={familyId} childList={children} person={editPerson}
                                          marriages={marriages}
                                          members={people} onClose={modalClose}></EditPersonModal>
                     }
