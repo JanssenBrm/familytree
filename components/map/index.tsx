@@ -53,10 +53,18 @@ const Map = ({people}: MapProps) => {
                     type: 'heatmap',
                     source: sourceId,
                     paint: {
+                        // Increase the heatmap weight based on count property
                         'heatmap-weight': {
                             type: 'identity',
-                            property: 'count'
-                        }
+                            property: 'count',
+                        },
+                        // Increase intensity as zoom level increases
+                        'heatmap-intensity': {
+                            stops: [
+                                [11, 1],
+                                [15, 3]
+                            ]
+                        },
                     }
                 }
             );
