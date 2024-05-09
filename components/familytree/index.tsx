@@ -40,6 +40,7 @@ const FamilyTree = ({id, people, marriages, children}: FamilyTreeProps) => {
             <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes}
                        fitView
                        className="bg-gray-50"
+                       minZoom={0}
             >
                 <Controls></Controls>
                 <MiniMap></MiniMap>

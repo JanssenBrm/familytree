@@ -215,14 +215,15 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childre
                     await deleteMarriage(familyId, existingMarriage.id);
                     storeDeleteMarriage(existingMarriage.id);
                 }
-
-                const marriage = await createMarriage(familyId, {
-                    p1: person.id === 0 ? undefined : person.id,
-                    p2: partner === 0 ? undefined : partner,
-                    city,
-                    date: marriageDate,
-                });
-                storeAddMarriage(marriage);
+                if (partner !== undefined) {
+                    const marriage = await createMarriage(familyId, {
+                        p1: person.id === 0 ? undefined : person.id,
+                        p2: partner === 0 ? undefined : partner,
+                        city,
+                        date: marriageDate,
+                    });
+                    storeAddMarriage(marriage);
+                }
             }
 
         }
