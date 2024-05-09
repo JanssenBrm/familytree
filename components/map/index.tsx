@@ -64,10 +64,23 @@ const Map = ({people}: MapProps) => {
                                 [11, 1],
                                 [15, 3]
                             ]
-                        },
+                        }
                     }
                 }
             );
+            map.current.addLayer({
+                id: 'count-labels',
+                type: 'symbol',
+                source: sourceId,
+                layout: {
+                    'text-field': ['get', 'count'],
+                    'text-font': ['Open Sans Regular'],
+                    'text-size': 12
+                },
+                paint: {
+                    'text-color': 'rgba(0, 0, 0, 0.8)'
+                }
+            });
         } else {
             source.setData(data);
         }
