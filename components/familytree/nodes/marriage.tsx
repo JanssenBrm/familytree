@@ -7,7 +7,7 @@ import {Marriage} from "@/stores/family/family.model";
 const Marriage = (({data}: { data: Marriage }) => {
     return (
         <div
-            className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-gray-200 w-60 flex items-center justify-center">
+            className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-gray-200 w-80 flex items-center justify-center">
             <GiBigDiamondRing size={32}/>
             <div className="flex flex-col items-center w-full justify-center">
                 {data.city && <div className="text-lg font-bold">{data.city}</div>}

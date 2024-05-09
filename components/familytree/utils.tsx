@@ -8,7 +8,7 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 export const nodeDims = {
     'marriage': {
-        width: 204,
+        width: 284,
         height: 100,
     },
     'member': {
