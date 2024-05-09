@@ -9,9 +9,10 @@ import {useFamilyStore} from "@/stores/family";
 import {getFamilyData} from "@/lib/family";
 import Map from "@/components/map";
 import {Tab, Tabs} from "@nextui-org/react";
-import { GiFamilyTree } from "react-icons/gi";
+import {GiFamilyTree} from "react-icons/gi";
 import {FaChartArea, FaMap} from "react-icons/fa";
 import Statistics from "@/components/statistics";
+import {useSearchParams} from "next/navigation";
 
 export enum Modals {
     NONE,
@@ -30,6 +31,7 @@ export default function Home() {
     const [view, setView] = useState<View>(View.TREE)
     const {editPerson, setEditPerson} = useUiStore((state) => state);
     const {people, marriages, children, initFamily} = useFamilyStore((state) => state);
+    const searchParams = useSearchParams()
 
     const familyId = 3;
 
@@ -58,19 +60,19 @@ export default function Home() {
                 <Tabs selectedKey={view} onSelectionChange={(key: any) => setView(key)}>
                     <Tab key={View.TREE} title={
                         <div className="flex items-center space-x-2">
-                            <GiFamilyTree />
+                            <GiFamilyTree/>
                             <span>Stamboom</span>
                         </div>
                     }/>
                     <Tab key={View.MAP} title={
                         <div className="flex items-center space-x-2">
-                            <FaMap />
+                            <FaMap/>
                             <span>Kaart</span>
                         </div>
                     }/>
                     <Tab key={View.STATISTICS} title={
                         <div className="flex items-center space-x-2">
-                            <FaChartArea />
+                            <FaChartArea/>
                             <span>Statistieken</span>
                         </div>
                     }/>
@@ -86,13 +88,18 @@ export default function Home() {
                 <Statistics people={people} marriages={marriages} children={children}/>
             }
 
-            <div className="absolute bottom-10 left-[50%]">
-                <Menu createPerson={() => setModal(Modals.NEW_PERSON)}></Menu>
-            </div>
-            {
-                (modal === Modals.NEW_PERSON || modal === Modals.EDIT_PERSON) && familyId &&
-                <EditPersonModal familyId={familyId} children={children} person={editPerson} marriages={marriages}
-                                 members={people} onClose={modalClose}></EditPersonModal>
+            { searchParams.get('edit') === '1' ?
+                <>
+                    <div className="absolute bottom-10 left-[50%]">
+                        <Menu createPerson={() => setModal(Modals.NEW_PERSON)}></Menu>
+                    </div>
+                    {
+                        (modal === Modals.NEW_PERSON || modal === Modals.EDIT_PERSON) && familyId &&
+                        <EditPersonModal familyId={familyId} children={children} person={editPerson}
+                                         marriages={marriages}
+                                         members={people} onClose={modalClose}></EditPersonModal>
+                    }
+                </> : ''
             }
         </main>
     );
