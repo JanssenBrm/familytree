@@ -78,13 +78,25 @@ export const generateTreeData = (members: Person[], marriages: Marriage[], child
     const nodes: Node[] = [];
     const edges: Edge[] = [];
     const processed: number[] = [];
+    let unknownIdx = Math.max(...members.map(p => p.id || 0)) + 1;
 
     for (const marriage of marriages) {
         // Process marriage
         const marriageId = `marriage-${marriage.p1}-${marriage.p2}`;
         [marriage.p1, marriage.p2].forEach((p) => {
-            if (!processed.includes(p) && p !== 0) {
-                const pNode = getNodeFromID(p, members, false);
+            const personId = p || unknownIdx;
+            if (!p || !processed.includes(p)) {
+                let pNode;
+                if (!!p) {
+                    pNode = getNodeFromID(p, members, false);
+                } else {
+                    pNode = createPersonNode({
+                        id: personId,
+                        firstname: 'Onbekend',
+                        lastname: 'Onbekend'
+                    }, false);
+                    unknownIdx = unknownIdx + 1;
+                }
                 if (pNode) {
                     nodes.push(pNode);
                     processed.push(p);
@@ -92,7 +104,7 @@ export const generateTreeData = (members: Person[], marriages: Marriage[], child
             }
             edges.push({
                 id: `marriage-edge-${p}`,
-                source: `${p}`,
+                source: `${personId}`,
                 target: marriageId
             })
         })
