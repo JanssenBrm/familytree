@@ -7,7 +7,7 @@ import {Person} from "@/stores/family/model";
 import clsx from "clsx";
 import {useUiStore} from "@/stores/ui";
 
-const Person = (({data}: { data: Person }) => {
+const PersonNode = (({data}: { data: Person }) => {
     const {setEditPerson} = useUiStore((state) => state);
 
 
@@ -47,4 +47,4 @@ const Person = (({data}: { data: Person }) => {
     )
 })
 
-export default memo(Person)
+export default memo(PersonNode)

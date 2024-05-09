@@ -2,9 +2,9 @@ import {Handle, Position} from "reactflow";
 import {memo} from "react";
 import moment from "moment/moment";
 import {GiBigDiamondRing} from "react-icons/gi";
-import {Marriage} from "@/stores/family/family.model";
+import {Marriage} from "@/stores/family/model";
 
-const Marriage = (({data}: { data: Marriage }) => {
+const MarriageNode = (({data}: { data: Marriage }) => {
     return (
         <div
             className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-gray-200 w-80 flex items-center justify-center">
@@ -20,4 +20,4 @@ const Marriage = (({data}: { data: Marriage }) => {
     )
 })
 
-export default memo(Marriage)
+export default memo(MarriageNode)

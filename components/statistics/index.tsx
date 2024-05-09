@@ -28,19 +28,22 @@ const Statistics = ({people, marriages, childList}: StatisticsProps) => {
     const [oldest, setOldest] = useState<Person | null>();
     const [youngest, setYoungest] = useState<Person | null>();
 
-    const getOldest = () => {
-        const sorted = people.filter(p => !!p.age).sort((p1: Person, p2: Person) => p1.age > p2.age ? -1 : 1);
-        setOldest(sorted[0])
-    }
-    const getYoungest = () => {
-        const sorted = people.filter(p => !!p.age).sort((p1: Person, p2: Person) => p1.age > p2.age ? 1 : -1);
-        setYoungest(sorted[0])
-    }
 
     useEffect(() => {
+        const getOldest = () => {
+            // @ts-ignore
+            const sorted = people.filter(p => !!p.age).sort((p1: Person, p2: Person) => p1.age > p2.age ? -1 : 1);
+            setOldest(sorted[0])
+        }
+        const getYoungest = () => {
+            // @ts-ignore
+            const sorted = people.filter(p => !!p.age).sort((p1: Person, p2: Person) => p1.age > p2.age ? 1 : -1);
+            setYoungest(sorted[0])
+        }
+
         getOldest();
         getYoungest();
-    }, [people, getOldest, getYoungest])
+    }, [people])
 
     return (
         <div className="bg-gray-50 w-screen h-screen p-14 pt-20">

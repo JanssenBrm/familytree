@@ -1,6 +1,6 @@
 'use client';
 
-// eslint-disable-next-line
+// @ts-ignore
 import mapboxgl from '!mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import {useEffect, useRef} from 'react';
@@ -75,7 +75,9 @@ const Map = ({people}: MapProps) => {
                 .filter((p: Person) => !!p.birthcity)
                 .map((p: Person) => p.birthcity)
             Promise.all(locations
+                // @ts-ignore
                 .filter((city: string, idx: number, cities: string[]) => cities.indexOf(city) === idx)
+                // @ts-ignore
                 .map((location: string) =>
                     getLocation(location)
                         .catch((error: any) => {
@@ -99,9 +101,10 @@ const Map = ({people}: MapProps) => {
                         })
                     ))
                 .then((features) => {
-                    console.log(features);
-                    flyToLocations(features);
-                    showHeatMap(features);
+                    if (map.current) {
+                        flyToLocations(features);
+                        showHeatMap(features);
+                    }
                 }).catch((error) => {
                 console.error(`Could not translate locations`, error);
                 addToast({

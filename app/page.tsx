@@ -2,7 +2,7 @@
 
 import FamilyTree from "@/components/familytree";
 import Menu from "@/components/menu";
-import {useEffect, useState} from "react";
+import {Suspense, useEffect, useState} from "react";
 import EditPersonModal from "../components/modals/editperson";
 import {useUiStore} from "@/stores/ui";
 import {useFamilyStore} from "@/stores/family";
@@ -17,13 +17,13 @@ import LoadingModal from "@/components/modals/loading";
 import {ToastType} from "@/stores/toasts/model";
 import {useToastsStore} from "@/stores/toasts";
 
-export enum Modals {
+enum Modals {
     NONE,
     NEW_PERSON,
     EDIT_PERSON
 }
 
-export enum View {
+enum View {
     MAP = 'map',
     TREE = 'tree',
     STATISTICS = 'statistics'
@@ -36,6 +36,7 @@ export default function Home() {
     const {people, marriages, children, initFamily} = useFamilyStore((state) => state);
     const searchParams = useSearchParams()
     const [ loading, setLoading ] = useState<boolean>(true);
+    const [ editEnabled, setEditEnabled] = useState<boolean>(false);
     const { addToast } = useToastsStore((state) => state);
 
     const familyId = 3;
@@ -56,6 +57,7 @@ export default function Home() {
                 setLoading(false);
             })
     }, [addToast, initFamily]);
+
 
     useEffect(() => {
         if (editPerson !== undefined) {
@@ -106,6 +108,7 @@ export default function Home() {
             {
                 loading && <LoadingModal/>
             }
+            <Suspense>
 
             { searchParams.get('edit') === '1' ?
                 <>
@@ -120,6 +123,7 @@ export default function Home() {
                     }
                 </> : ''
             }
+            </Suspense>
         </main>
     );
 }

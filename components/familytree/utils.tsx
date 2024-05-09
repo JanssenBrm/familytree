@@ -99,11 +99,11 @@ export const generateTreeData = (members: Person[], marriages: Marriage[], child
                 }
                 if (pNode) {
                     nodes.push(pNode);
-                    processed.push(p);
+                    processed.push(personId);
                 }
             }
             edges.push({
-                id: `marriage-edge-${p}`,
+                id: `marriage-edge-${personId}`,
                 source: `${personId}`,
                 target: marriageId
             })

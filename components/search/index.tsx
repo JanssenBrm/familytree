@@ -2,7 +2,7 @@ import {Node, useReactFlow} from "reactflow";
 import {FaRegCircle, FaSearch} from "react-icons/fa";
 import moment from "moment/moment";
 import React, {useEffect, useState} from "react";
-import {Person} from "@/stores/family/family.model";
+import {Person} from "@/stores/family/model";
 import {nodeDims} from "@/components/familytree/utils";
 import {Input, ScrollShadow} from "@nextui-org/react";
 
