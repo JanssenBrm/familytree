@@ -13,6 +13,9 @@ import {GiFamilyTree} from "react-icons/gi";
 import {FaChartArea, FaMap} from "react-icons/fa";
 import Statistics from "@/components/statistics";
 import {useSearchParams} from "next/navigation";
+import LoadingModal from "@/components/modals/loading";
+import {ToastType} from "@/stores/toasts/model";
+import {useToastsStore} from "@/stores/toasts";
 
 export enum Modals {
     NONE,
@@ -32,13 +35,25 @@ export default function Home() {
     const {editPerson, setEditPerson} = useUiStore((state) => state);
     const {people, marriages, children, initFamily} = useFamilyStore((state) => state);
     const searchParams = useSearchParams()
+    const [ loading, setLoading ] = useState<boolean>(true);
+    const { addToast } = useToastsStore((state) => state);
 
     const familyId = 3;
 
     useEffect(() => {
+        setLoading(true);
         getFamilyData(familyId)
             .then(({people, marriages, children}) => {
                 initFamily(people, marriages, children);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error(`Could load family`, error);
+                addToast({
+                    message: `Sorry! Kon jouw familie niet laden`,
+                    type: ToastType.ERROR
+                });
+                setLoading(false);
             })
     }, []);
 
@@ -86,6 +101,10 @@ export default function Home() {
 
             {view === View.STATISTICS &&
                 <Statistics people={people} marriages={marriages} children={children}/>
+            }
+
+            {
+                loading && <LoadingModal/>
             }
 
             { searchParams.get('edit') === '1' ?
