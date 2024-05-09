@@ -16,6 +16,7 @@ import {useSearchParams} from "next/navigation";
 import LoadingModal from "@/components/modals/loading";
 import {ToastType} from "@/stores/toasts/model";
 import {useToastsStore} from "@/stores/toasts";
+import {Child, Marriage, Person} from "@/stores/family/model";
 
 enum Modals {
     NONE,
@@ -29,7 +30,7 @@ enum View {
     STATISTICS = 'statistics'
 }
 
-export default function Home() {
+function HomePage() {
     const [modal, setModal] = useState<Modals>(Modals.NONE)
     const [view, setView] = useState<View>(View.TREE)
     const {editPerson, setEditPerson} = useUiStore((state) => state);
@@ -108,7 +109,6 @@ export default function Home() {
             {
                 loading && <LoadingModal/>
             }
-            <Suspense>
 
             { searchParams.get('edit') === '1' ?
                 <>
@@ -123,7 +123,12 @@ export default function Home() {
                     }
                 </> : ''
             }
-            </Suspense>
         </main>
     );
+}
+
+export default function Home() {
+    return <Suspense>
+        <HomePage></HomePage>
+    </Suspense>
 }
