@@ -43,44 +43,51 @@ const Map = ({people}: MapProps) => {
         if (!source) {
             map.current.addSource(sourceId, {
                 type: 'geojson',
-                cluster: true,
                 data
             });
 
-            map.current.addLayer(
-                {
-                    id: sourceId,
-                    type: 'heatmap',
-                    source: sourceId,
-                    paint: {
-                        // Increase the heatmap weight based on count property
-                        'heatmap-weight': {
-                            type: 'identity',
-                            property: 'count',
-                        },
-                        // Increase intensity as zoom level increases
-                        'heatmap-intensity': {
-                            stops: [
-                                [11, 1],
-                                [15, 3]
-                            ]
-                        }
-                    }
-                }
-            );
             map.current.addLayer({
-                id: 'count-labels',
-                type: 'symbol',
+                id: 'heatmap-layer',
+                type: 'heatmap',
                 source: sourceId,
-                layout: {
-                    'text-field': ['get', 'count'],
-                    'text-font': ['Open Sans Regular'],
-                    'text-size': 12
-                },
+                maxzoom: 14, // Adjust this value to your preference
                 paint: {
-                    'text-color': 'rgba(0, 0, 0, 0.8)'
+                    'heatmap-weight': [
+                        'interpolate',
+                        ['linear'],
+                        ['get', 'mag'],
+                        0, 0,
+                        6, 1
+                    ],
+                    'heatmap-intensity': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        0, 1,
+                        9, 3
+                    ],
+                    'heatmap-color': [
+                        'interpolate',
+                        ['linear'],
+                        ['heatmap-density'],
+                        0, 'rgba(33,102,172,0)',
+                        0.2, 'rgb(103,169,207)',
+                        0.4, 'rgb(209,229,240)',
+                        0.6, 'rgb(253,219,199)',
+                        0.8, 'rgb(239,138,98)',
+                        1, 'rgb(178,24,43)'
+                    ],
+                    'heatmap-radius': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        0, 2,
+                        9, 20
+                    ],
+                    // Adjust the opacity without transition
+                    'heatmap-opacity': 1
                 }
-            });
+            }, 'waterway-label');
         } else {
             source.setData(data);
         }
@@ -98,12 +105,12 @@ const Map = ({people}: MapProps) => {
 
     useEffect(() => {
         if (map.current && people.length > 0) {
-            const locations = people
+            // const locations = people
+            //     .filter((p: Person) => !!p.birthcity)
+            //     .map((p: Person) => p.birthcity)
+            Promise.all(people
                 .filter((p: Person) => !!p.birthcity)
                 .map((p: Person) => p.birthcity)
-            Promise.all(locations
-                // @ts-ignore
-                .filter((city: string, idx: number, cities: string[]) => cities.indexOf(city) === idx)
                 // @ts-ignore
                 .map((location: string) =>
                     getLocation(location)
@@ -116,17 +123,8 @@ const Map = ({people}: MapProps) => {
                             return null;
                         }))
             ).then((features: (GeoJSON.Feature | null)[]) =>
-                features
-                    .filter((feature: any) => !!feature)
-                    .map((feature: any) =>
-                        ({
-                            ...feature,
-                            properties: {
-                                ...feature.properties,
-                                count: locations.filter(l => l === feature.properties.name_preferred).length
-                            }
-                        })
-                    ))
+                (features
+                    .filter((feature: any) => !!feature)) as GeoJSON.Feature[])
                 .then((features) => {
                     if (map.current) {
                         flyToLocations(features);
