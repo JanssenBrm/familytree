@@ -89,6 +89,12 @@ const Map = ({people}: MapProps) => {
         fetch(`https://api.mapbox.com/search/geocode/v6/forward?q=${location}&access_token=${mapboxToken}`)
             .then((response) => response.json())
             .then((collection) => collection.features.find((f: any) => f.properties.context.country.country_code == "BE" && f.properties.name_preferred === location))
+            .then((location) => {
+                if (!location) {
+                    throw Error(`Could not find result for location ${location}`)
+                }
+                return location;
+            })
 
     useEffect(() => {
         if (map.current && people.length > 0) {
@@ -156,6 +162,10 @@ const Map = ({people}: MapProps) => {
                 'space-color': 'rgb(11, 11, 25)', // Background color
                 'star-intensity': 0.6 // Background star brightness (default 0.35 at low zoooms )
             });
+        });
+
+        mp.on('load', () => {
+            mp.resize();
         });
 
         map.current = mp;
