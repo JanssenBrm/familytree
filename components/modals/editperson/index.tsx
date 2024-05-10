@@ -19,6 +19,7 @@ import {Controller, useForm} from "react-hook-form";
 import {parseDate} from "@internationalized/date";
 import moment from "moment";
 import {useFamilyStore} from "@/stores/family";
+import CountrySelect from "@/components/countryselect";
 
 interface EditPersonModalProps extends ModalProps {
     person?: Person,
@@ -95,8 +96,10 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childLi
                 firstname: person?.firstname,
                 lastname: person?.lastname,
                 birthcity: person?.birthcity,
+                birthcountry: person?.birthcountry,
                 birthdate: person?.birthdate ? parseDate(moment(person.birthdate.length === 4 ? `${person.birthdate}/01/01` : person.birthdate).format('YYYY-MM-DD')) : undefined,
                 deathcity: person?.deathcity,
+                deathcountry: person?.deathcountry,
                 deathdate: person?.deathdate ? parseDate(moment(person.deathdate.length === 4 ? `${person.deathdate}/01/01` : person.deathdate).format('YYYY-MM-DD')) : undefined,
                 comments: person?.comments
             },
@@ -257,7 +260,7 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childLi
 
     return (
         <Modal isOpen={true} onClose={onClose} backdrop="blur">
-            <ModalContent className="md:max-h-[75vh] max-h-[95vh]">
+            <ModalContent className="md:max-h-[75vh] max-h-[95vh] md:min-w-[40vw]">
                 {(onClose) => (
                     <>
                         <ModalHeader className="flex flex-col gap-1">
@@ -267,22 +270,32 @@ const EditPersonModal = ({onClose, familyId, person, marriages, members, childLi
                             <Input label="Voornaam" {...register("person.firstname", {required: true})} />
                             <Input label="Achternaam" {...register("person.lastname", {required: true})} />
                             <h3 className="p-2 font-bold text-neutral-500 uppercase text-sm">Geboorte</h3>
+                            <Controller
+                                name="person.birthdate"
+                                control={control}
+                                render={({field}) => <DatePicker label="Datum" {...field} />}
+                            />
                             <div className="flex flex-row gap-4">
+                                <Input label="Stad" {...register("person.birthcity")} className="fle" />
                                 <Controller
-                                    name="person.birthdate"
+                                    name="person.birthcountry"
                                     control={control}
-                                    render={({field}) => <DatePicker label="Datum" {...field} />}
+                                    render={({field}) => <CountrySelect value={field.value} onChange={(value) => field.onChange(value)} />}
                                 />
-                                <Input label="Stad" {...register("person.birthcity")} />
                             </div>
                             <h3 className="p-2 font-bold text-neutral-500 uppercase text-sm">Overlijden</h3>
+                            <Controller
+                                name="person.deathdate"
+                                control={control}
+                                render={({field}) => <DatePicker label="Datum" {...field} />}
+                            />
                             <div className="flex flex-row gap-4">
-                                <Controller
-                                    name="person.deathdate"
-                                    control={control}
-                                    render={({field}) => <DatePicker label="Datum" {...field} />}
-                                />
                                 <Input label="Stad" {...register("person.deathcity")} />
+                                <Controller
+                                    name="person.deathcountry"
+                                    control={control}
+                                    render={({field}) => <CountrySelect  value={field.value} onChange={(value) => field.onChange(value)}  />}
+                                />
                             </div>
                             <h3 className="p-2 font-bold text-neutral-500 uppercase text-sm">Huwelijk</h3>
 

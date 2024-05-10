@@ -83,10 +83,10 @@ export const getFamilyData = async (id: number) => {
 export const createPerson = async (family: number, person: PersonBase): Promise<Person> => {
     try {
         const result = await sql<{ id: number }>`
-            INSERT INTO family_members (familyid, firstname, lastname, birthcity, birthdate, deathcity, deathdate,
+            INSERT INTO family_members (familyid, firstname, lastname, birthcity, birthcountry, birthdate, deathcity, deathcountry, deathdate,
                                         comments)
-            VALUES (${family}, ${person.firstname}, ${person.lastname}, ${person.birthcity}, ${person.birthdate},
-                    ${person.deathcity}, ${person.deathdate}, ${person.comments}) RETURNING id`;
+            VALUES (${family}, ${person.firstname}, ${person.lastname}, ${person.birthcity}, ${person.birthcountry}, ${person.birthdate},
+                    ${person.deathcity}, ${person.deathcountry}, ${person.deathdate}, ${person.comments}) RETURNING id`;
 
         return {
             ...person,
@@ -107,8 +107,10 @@ export const updatePerson = async (family: number, id: number, person: PersonBas
                 firstname = ${person.firstname},
                 lastname  = ${person.lastname},
                 birthcity = ${person.birthcity},
+                birthcountry = ${person.birthcountry},
                 birthdate = ${person.birthdate},
                 deathcity = ${person.deathcity},
+                deathcountry = ${person.deathcountry},
                 deathdate = ${person.deathdate},
                 comments  = ${person.comments}
             WHERE id = ${id}`;

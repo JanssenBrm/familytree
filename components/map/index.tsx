@@ -92,10 +92,10 @@ const Map = ({people}: MapProps) => {
             source.setData(data);
         }
     }
-    const getLocation = (location: string): Promise<GeoJSON.Feature | null> =>
+    const getLocation = (country: string, location: string): Promise<GeoJSON.Feature | null> =>
         fetch(`https://api.mapbox.com/search/geocode/v6/forward?q=${location}&access_token=${mapboxToken}`)
             .then((response) => response.json())
-            .then((collection) => collection.features.find((f: any) => f.properties.context.country.country_code == "BE" && f.properties.name_preferred === location))
+            .then((collection) => collection.features.find((f: any) => f.properties.context.country.country_code == country && f.properties.name_preferred === location))
             .then((location) => {
                 if (!location) {
                     throw Error(`Could not find result for location ${location}`)
@@ -106,11 +106,11 @@ const Map = ({people}: MapProps) => {
     useEffect(() => {
         if (map.current && people.length > 0) {
             Promise.all(people
-                .filter((p: Person) => !!p.birthcity)
-                .map((p: Person) => p.birthcity)
+                .filter((p: Person) => !!p.birthcity && !!p.birthcountry)
+                .map((p: Person) => ({ city: p.birthcity, country: p.birthcountry }))
                 // @ts-ignore
-                .map((location: string) =>
-                    getLocation(location)
+                .map(({city, country}: {city: string, country: string}) =>
+                    getLocation(country, city)
                         .catch((error: any) => {
                             console.error(`Could not translate location ${location}`, error);
                             addToast({

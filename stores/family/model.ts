@@ -5,8 +5,10 @@ export interface PersonBase {
     firstname: string;
     lastname: string;
     birthcity?: string;
+    birthcountry?: string;
     birthdate?: string;
     deathcity?: string;
+    deathcountry?: string;
     deathdate?: string;
     comments?: string;
 }

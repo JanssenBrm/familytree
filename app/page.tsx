@@ -36,7 +36,7 @@ function HomePage() {
     const [loading, setLoading] = useState<boolean>(true);
     const {addToast} = useToastsStore((state) => state);
     const [familyId, setFamilyId] = useState<number>();
-    const editEnabled = false;
+    const editEnabled = true;
 
     useEffect(() => {
         const familyId = 3;

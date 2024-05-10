@@ -27,8 +27,10 @@ async function createMembers(client) {
                 lastName VARCHAR(255) NOT NULL,
                 firstName VARCHAR(255) NOT NULL,
                 birthCity VARCHAR(255),
+                birthCountry VARCHAR(255),
                 birthDate VARCHAR(255),
                 deathCity VARCHAR(255),
+                deathCountry VARCHAR(255),
                 deathDate VARCHAR(255),
                 comments TEXT,
                 FOREIGN KEY (familyId) REFERENCES family_families(id)
