@@ -3,7 +3,7 @@
 // @ts-ignore
 import mapboxgl from '!mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import {useEffect, useRef} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {Person} from "@/stores/family/model";
 import {ToastType} from "@/stores/toasts/model";
 import {useToastsStore} from "@/stores/toasts";
@@ -25,6 +25,8 @@ const Map = ({people}: MapProps) => {
     const mapContainer = useRef(null);
     const map = useRef<mapboxgl.Map>(null);
     const {addToast} = useToastsStore((state) => state);
+    const [popup, setPopup] = useState(new mapboxgl.Popup({closeButton: false}));
+
 
     const flyToLocations = (features: GeoJSON.Feature[]) => {
         if (map.current && features.length > 0) {
@@ -88,6 +90,27 @@ const Map = ({people}: MapProps) => {
                     'heatmap-opacity': 1
                 }
             }, 'waterway-label');
+
+            map.current.on('mouseenter', 'heatmap-layer', (e: any) => {
+                const features = map.current.queryRenderedFeatures(e.point);
+                if (features.length > 0) {
+                    const feature = features[0];
+                    const coordinates = feature.geometry.coordinates.slice();
+                    const locations = features.map((f: GeoJSON.Feature) => f.properties?.name_preferred)
+                        .filter((city: string, idx: number, cities: string[]) => !!city && cities.indexOf(city) === idx);
+
+                    popup.setLngLat(coordinates)
+                        .setHTML(`
+                        <p class="font-bold">${locations.join(', ')}</p>
+                        <p>Aantal: ${features.length}</p>
+                        `)
+                        .addTo(map.current);
+                }
+            });
+
+            map.current.on('mouseleave', 'heatmap-layer', () => {
+                popup.remove();
+            });
         } else {
             source.setData(data);
         }
@@ -107,9 +130,9 @@ const Map = ({people}: MapProps) => {
         if (map.current && people.length > 0) {
             Promise.all(people
                 .filter((p: Person) => !!p.birthcity && !!p.birthcountry)
-                .map((p: Person) => ({ city: p.birthcity, country: p.birthcountry }))
+                .map((p: Person) => ({city: p.birthcity, country: p.birthcountry}))
                 // @ts-ignore
-                .map(({city, country}: {city: string, country: string}) =>
+                .map(({city, country}: { city: string, country: string }) =>
                     getLocation(country, city)
                         .catch((error: any) => {
                             console.error(`Could not translate location ${location}`, error);
@@ -136,7 +159,7 @@ const Map = ({people}: MapProps) => {
 
             })
         }
-    }, [map.current, people, addToast]);
+    }, [map.current, popup, people, addToast]);
 
 
     useEffect(() => {
