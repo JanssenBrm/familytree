@@ -39,24 +39,30 @@ function HomePage() {
     const [ loading, setLoading ] = useState<boolean>(true);
     const [ editEnabled, setEditEnabled] = useState<boolean>(false);
     const { addToast } = useToastsStore((state) => state);
-
-    const familyId = 3;
+    const [ familyId, setFamilyId] = useState<number>();
 
     useEffect(() => {
-        setLoading(true);
-        getFamilyData(familyId)
-            .then(({people, marriages, children}) => {
-                initFamily(people, marriages, children);
-                setLoading(false);
-            })
-            .catch((error) => {
-                console.error(`Could load family`, error);
-                addToast({
-                    message: `Sorry! Kon jouw familie niet laden`,
-                    type: ToastType.ERROR
-                });
-                setLoading(false);
-            })
+        const familyId = searchParams.get('family');
+        if (!!familyId) {
+            console.log('Loading family with ID', familyId);
+            setFamilyId(+familyId);
+            setLoading(true);
+            getFamilyData(+familyId)
+                .then(({people, marriages, children}) => {
+                    initFamily(people, marriages, children);
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    console.error(`Could load family`, error);
+                    addToast({
+                        message: `Sorry! Kon jouw familie niet laden`,
+                        type: ToastType.ERROR
+                    });
+                    setLoading(false);
+                })
+        } else {
+            console.warn('No family ID set', familyId);
+        }
     }, [addToast, initFamily]);
 
 
@@ -96,7 +102,7 @@ function HomePage() {
                     }/>
                 </Tabs>
             </div>
-            {view === View.TREE &&
+            {view === View.TREE && familyId &&
                 <FamilyTree id={familyId} people={people} marriages={marriages} childList={children}></FamilyTree>}
             {view === View.MAP &&
                 <Map people={people}/>
@@ -107,7 +113,7 @@ function HomePage() {
             }
 
             {
-                loading && <LoadingModal/>
+                loading && familyId && <LoadingModal/>
             }
 
             { searchParams.get('edit') === '1' ?
