@@ -12,11 +12,9 @@ import {Tab, Tabs} from "@nextui-org/react";
 import {GiFamilyTree} from "react-icons/gi";
 import {FaChartArea, FaMap} from "react-icons/fa";
 import Statistics from "@/components/statistics";
-import {useSearchParams} from "next/navigation";
 import LoadingModal from "@/components/modals/loading";
 import {ToastType} from "@/stores/toasts/model";
 import {useToastsStore} from "@/stores/toasts";
-import {Child, Marriage, Person} from "@/stores/family/model";
 
 enum Modals {
     NONE,
@@ -35,14 +33,13 @@ function HomePage() {
     const [view, setView] = useState<View>(View.TREE)
     const {editPerson, setEditPerson} = useUiStore((state) => state);
     const {people, marriages, children, initFamily} = useFamilyStore((state) => state);
-    const searchParams = useSearchParams()
-    const [ loading, setLoading ] = useState<boolean>(true);
-    const [ editEnabled, setEditEnabled] = useState<boolean>(false);
-    const { addToast } = useToastsStore((state) => state);
-    const [ familyId, setFamilyId] = useState<number>();
+    const [loading, setLoading] = useState<boolean>(true);
+    const {addToast} = useToastsStore((state) => state);
+    const [familyId, setFamilyId] = useState<number>();
+    const editEnabled = false;
 
     useEffect(() => {
-        const familyId = searchParams.get('family');
+        const familyId = 3;
         if (!!familyId) {
             console.log('Loading family with ID', familyId);
             setFamilyId(+familyId);
@@ -116,7 +113,7 @@ function HomePage() {
                 loading && familyId && <LoadingModal/>
             }
 
-            { searchParams.get('edit') === '1' ?
+            {editEnabled ?
                 <>
                     <div className="absolute bottom-10 left-[50%]">
                         <Menu createPerson={() => setModal(Modals.NEW_PERSON)}></Menu>
