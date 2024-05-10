@@ -105,9 +105,6 @@ const Map = ({people}: MapProps) => {
 
     useEffect(() => {
         if (map.current && people.length > 0) {
-            // const locations = people
-            //     .filter((p: Person) => !!p.birthcity)
-            //     .map((p: Person) => p.birthcity)
             Promise.all(people
                 .filter((p: Person) => !!p.birthcity)
                 .map((p: Person) => p.birthcity)
