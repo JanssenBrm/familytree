@@ -5,16 +5,18 @@ import {RootStoreContext} from "@/stores/root-store-provider";
 import {Child, Marriage, Person, PersonBase} from "@/stores/family/model";
 
 export type FamilyState = {
+    name: string,
     people: Person[],
     marriages: Marriage[],
     children: Child[],
 }
 
 export type FamilyActions = {
+    setName: (name: string) => void
     setPeople: (people: Person[]) => void
     setMarriages: (marriage: Marriage[]) => void
     setChildren: (children: Child[]) => void
-    initFamily: (people: Person[], marriages: Marriage[], children: Child[]) => void
+    initFamily: (name: string, people: Person[], marriages: Marriage[], children: Child[]) => void
     addPerson: (person: Person) => void,
     updatePerson: (id: number, person: Person) => void,
     deletePerson: (id: number) => void,
@@ -28,6 +30,7 @@ export type FamilyActions = {
 export type FamilyStore = FamilyState & FamilyActions;
 
 export const defaultInitState: FamilyState = {
+    name: '',
     people: [],
     marriages: [],
     children: []
@@ -38,7 +41,8 @@ export const createFamilyStore = (
 ) => {
     return createStore<FamilyStore>()((set) => ({
         ...initState,
-        initFamily: (people: Person[], marriages: Marriage[], children: Child[]) => set((state) => ({people, marriages, children})),
+        initFamily: (name: string, people: Person[], marriages: Marriage[], children: Child[]) => set((state) => ({name, people, marriages, children})),
+        setName: (name: string) => set((state) => ({name})),
         setPeople: (people: Person[]) => set((state) => ({people})),
         setMarriages: (marriages: Marriage[]) => set((state) => ({marriages})),
         setChildren: (children: Child[]) => set((state) => ({children})),

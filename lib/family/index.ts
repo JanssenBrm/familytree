@@ -28,6 +28,20 @@ const getAge = (person: PersonBase): number | undefined => {
     return undefined;
 }
 
+const getFamilyName = async (id: number): Promise<string> => {
+    try {
+        const nameResult = await sql<{ name: string }>`SELECT name
+                                             FROM family_families
+                                             WHERE id = ${id}`;
+
+        return nameResult.rows[0]?.name || '';
+    } catch (error) {
+        console.error('Failed to fetch family name:', error);
+        throw new Error(`Failed to fetch family name: ${error}`);
+    }
+
+}
+
 const getPeople = async (id: number): Promise<Person[]> => {
     try {
         const people = await sql<PersonBase>`SELECT *
@@ -70,10 +84,12 @@ const getChildren = async (id: number): Promise<Child[]> => {
 
 }
 export const getFamilyData = async (id: number) => {
+    const name = await getFamilyName(id);
     const people = await getPeople(id);
     const marriages = await getMarriages(id);
     const children: Child[] = await getChildren(id);
     return {
+        name,
         people,
         marriages,
         children
