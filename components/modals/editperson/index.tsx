@@ -231,11 +231,13 @@ const EditPersonModal = ({
         ...values,
         // @ts-ignore
         birthdate: values.birthdate
-          ? moment(values.birthdate.toDate()).format("YYYY/MM/DD")
+          ? // @ts-ignore
+            moment(values.birthdate.toDate()).format("YYYY/MM/DD")
           : undefined,
         // @ts-ignore
         deathdate: values.deathdate
-          ? moment(values.deathdate.toDate()).format("YYYY/MM/DD")
+          ? // @ts-ignore
+            moment(values.deathdate.toDate()).format("YYYY/MM/DD")
           : undefined,
       };
       setLoading(true);
@@ -254,7 +256,8 @@ const EditPersonModal = ({
       const { partner, city, date } = getValues().marriage;
       // @ts-ignore
       const marriageDate = date
-        ? moment(date.toDate()).format("YYYY/MM/DD")
+        ? // @ts-ignore
+          moment(date.toDate()).format("YYYY/MM/DD")
         : undefined;
       const existingMarriage = getMarriage(person?.id);
       if (
