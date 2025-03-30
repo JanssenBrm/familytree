@@ -16,6 +16,39 @@ async function createFamilies(client) {
     }
 }
 
+async function createFamilyManagers(client) {
+    try {
+        await client.sql`
+            CREATE TABLE IF NOT EXISTS family_managers
+            (
+                id SERIAL NOT NULL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                password VARCHAR(255) NOT NULL
+            );
+        `;
+
+    } catch (error) {
+        console.error('Error creating family managers table:', error);
+        throw error;
+    }
+}
+async function createFamilyManagersRel(client) {
+    try {
+        await client.sql`
+            CREATE TABLE IF NOT EXISTS family_managers_family_rel
+            (
+                manager_id INT NOT NULL,
+                family_id INT NOT NULL
+            );
+        `;
+
+    } catch (error) {
+        console.error('Error creating family managers table:', error);
+        throw error;
+    }
+}
+
 async function createMembers(client) {
     try {
         await client.sql`
@@ -87,7 +120,10 @@ async function createChildren(client) {
 async function main() {
     const client = await db.connect();
 
+
     await createFamilies(client);
+    await createFamilyManagers(client);
+    await createFamilyManagersRel(client);
     await createMembers(client);
     await createMarriages(client);
     await createChildren(client);
