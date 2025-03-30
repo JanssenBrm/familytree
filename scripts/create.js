@@ -38,8 +38,10 @@ async function createFamilyManagersRel(client) {
         await client.sql`
             CREATE TABLE IF NOT EXISTS family_managers_family_rel
             (
-                manager_id INT NOT NULL,
-                family_id INT NOT NULL
+                managerId INT NOT NULL,
+                familyId INT NOT NULL,
+                FOREIGN KEY (managerId) REFERENCES family_managers(id),
+                FOREIGN KEY (familyId) REFERENCES family_families(id)
             );
         `;
 

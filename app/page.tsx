@@ -6,15 +6,18 @@ import { Suspense, useEffect, useState } from "react";
 import EditPersonModal from "../components/modals/editperson";
 import { useUiStore } from "@/stores/ui";
 import { useFamilyStore } from "@/stores/family";
-import { getFamilyData } from "@/lib/family";
+import { getFamilies, getFamilyData } from "@/app/lib/family";
 import Map from "@/components/map";
-import { Tab, Tabs } from "@nextui-org/react";
+import { Select, SelectItem, Tab, Tabs } from "@nextui-org/react";
 import { GiFamilyTree } from "react-icons/gi";
 import { FaChartArea, FaMap } from "react-icons/fa";
 import Statistics from "@/components/statistics";
 import LoadingModal from "@/components/modals/loading";
 import { ToastType } from "@/stores/toasts/model";
 import { useToastsStore } from "@/stores/toasts";
+import { logout } from "./actions/auth";
+import { verifySession } from "./lib/dal";
+import { Family } from "@/stores/family/model";
 
 enum Modals {
   NONE,
@@ -32,37 +35,72 @@ function HomePage() {
   const [modal, setModal] = useState<Modals>(Modals.NONE);
   const [view, setView] = useState<View>(View.TREE);
   const { editPerson, setEditPerson } = useUiStore((state) => state);
-  const { name, people, marriages, children, initFamily } = useFamilyStore(
-    (state) => state
-  );
+  const {
+    families,
+    name,
+    people,
+    marriages,
+    children,
+    initFamily,
+    setFamilies,
+  } = useFamilyStore((state) => state);
   const [loading, setLoading] = useState<boolean>(true);
   const { addToast } = useToastsStore((state) => state);
-  const [familyId, setFamilyId] = useState<number>();
+  const [familyId, setFamilyId] = useState<number | null>(null);
   const editEnabled = true;
 
   useEffect(() => {
-    const familyId = 3;
-    if (!!familyId) {
+    setLoading(true);
+    verifySession()
+      .then(({ userId }) => {
+        getFamilies(userId)
+          .then((families) => {
+            if (families.length > 0) {
+              setFamilies(families);
+              setFamilyId(families[0].id);
+            } else {
+              console.warn("No families found for the authenticated user");
+              setLoading(false);
+            }
+          })
+          .catch((error) => {
+            console.error(`Could not retrieve families`, error);
+            addToast({
+              message: `Sorry! Kon jouw families niet ophalen`,
+              type: ToastType.ERROR,
+            });
+            setLoading(false);
+          });
+      })
+      .catch((error) => {
+        console.error(`Could not verify session`, error);
+        addToast({
+          message: `Sorry! Kon jouw families niet ophalen`,
+          type: ToastType.ERROR,
+        });
+        setLoading(false);
+      });
+  }, [addToast, initFamily]);
+
+  useEffect(() => {
+    if (familyId) {
       console.log("Loading family with ID", familyId);
-      setFamilyId(+familyId);
       setLoading(true);
-      getFamilyData(+familyId)
+      getFamilyData(familyId)
         .then(({ name, people, marriages, children }) => {
           initFamily(name, people, marriages, children);
           setLoading(false);
         })
         .catch((error) => {
-          console.error(`Could load family`, error);
+          console.error(`Could not load family`, error);
           addToast({
             message: `Sorry! Kon jouw familie niet laden`,
             type: ToastType.ERROR,
           });
           setLoading(false);
         });
-    } else {
-      console.warn("No family ID set", familyId);
     }
-  }, [addToast, initFamily]);
+  }, [familyId]);
 
   useEffect(() => {
     if (editPerson !== undefined) {
@@ -109,10 +147,23 @@ function HomePage() {
           />
         </Tabs>
         <div className="flex-1 flex items-center justify-center">
-          {name && (
-            <span className="font-bold bg-neutral-50 p-2 rounded-lg">
-              Familie - {name}
-            </span>
+          {families.length > 0 && (
+            <Select
+              label="Familie"
+              size="sm"
+              defaultSelectedKeys={[`${familyId}`]}
+              onChange={(e) => {
+                const id = parseInt(e.target.value, 10);
+                setFamilyId(isNaN(id) ? null : id);
+              }}
+              className="w-96"
+            >
+              {families.map((family: Family) => (
+                <SelectItem key={family.id} value={family.id}>
+                  {family.name}
+                </SelectItem>
+              ))}
+            </Select>
           )}
         </div>
       </div>

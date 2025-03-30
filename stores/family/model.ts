@@ -37,3 +37,8 @@ export interface FamilyManager {
   email: string;
   password: string;
 }
+
+export interface Family {
+  id: number;
+  name: string;
+}
