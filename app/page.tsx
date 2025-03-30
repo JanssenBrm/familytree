@@ -8,7 +8,7 @@ import { useUiStore } from "@/stores/ui";
 import { useFamilyStore } from "@/stores/family";
 import { getFamilies, getFamilyData } from "@/app/lib/family";
 import Map from "@/components/map";
-import { Select, SelectItem, Tab, Tabs } from "@nextui-org/react";
+import { Button, Select, SelectItem, Tab, Tabs } from "@nextui-org/react";
 import { GiFamilyTree } from "react-icons/gi";
 import { FaChartArea, FaMap } from "react-icons/fa";
 import Statistics from "@/components/statistics";
@@ -117,35 +117,43 @@ function HomePage() {
   return (
     <main>
       <div className="absolute top-2 left-2 z-50 w-[96%] md:w-4/5 flex items-center justify-center">
-        <Tabs selectedKey={view} onSelectionChange={(key: any) => setView(key)}>
-          <Tab
-            key={View.TREE}
-            title={
-              <div className="flex items-center space-x-2">
-                <GiFamilyTree />
-                <span>Stamboom</span>
-              </div>
-            }
-          />
-          <Tab
-            key={View.MAP}
-            title={
-              <div className="flex items-center space-x-2">
-                <FaMap />
-                <span>Kaart</span>
-              </div>
-            }
-          />
-          <Tab
-            key={View.STATISTICS}
-            title={
-              <div className="flex items-center space-x-2">
-                <FaChartArea />
-                <span>Statistieken</span>
-              </div>
-            }
-          />
-        </Tabs>
+        <div>
+          <Tabs
+            selectedKey={view}
+            onSelectionChange={(key: any) => setView(key)}
+          >
+            <Tab
+              key={View.TREE}
+              title={
+                <div className="flex items-center space-x-2">
+                  <GiFamilyTree />
+                  <span>Stamboom</span>
+                </div>
+              }
+            />
+            <Tab
+              key={View.MAP}
+              title={
+                <div className="flex items-center space-x-2">
+                  <FaMap />
+                  <span>Kaart</span>
+                </div>
+              }
+            />
+            <Tab
+              key={View.STATISTICS}
+              title={
+                <div className="flex items-center space-x-2">
+                  <FaChartArea />
+                  <span>Statistieken</span>
+                </div>
+              }
+            />
+          </Tabs>
+          <Button color="primary" onClick={() => logout()} className="ml-5">
+            Logout
+          </Button>
+        </div>
         <div className="flex-1 flex items-center justify-center">
           {families.length > 0 && (
             <Select
