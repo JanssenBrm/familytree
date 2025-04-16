@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "create": "node -r dotenv/config ./scripts/create.js",
-    "seed": "node -r dotenv/config ./scripts/seed.js"
+    "seed": "node -r dotenv/config ./scripts/seed.js",
+    "copy": "node -r dotenv/config ./scripts/copy.js"
   },
   "dependencies": {
     "@dagrejs/dagre": "^1.1.2",
