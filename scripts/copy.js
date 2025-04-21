@@ -172,12 +172,6 @@ const validateFamilyChildren = async (
       copiedFamilyId,
       memberMapping[child.childid]
     );
-    console.log(
-      child,
-      memberMapping[child.childid],
-      originalChild,
-      copiedChild
-    );
     for (const key of ["id", "familyid"]) {
       delete originalChild[key];
       delete copiedChild[key];
