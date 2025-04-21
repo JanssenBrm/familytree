@@ -80,7 +80,7 @@ function HomePage() {
         });
         setLoading(false);
       });
-  }, [addToast, initFamily]);
+  }, [addToast, initFamily, setFamilies]);
 
   useEffect(() => {
     if (familyId) {
@@ -100,7 +100,7 @@ function HomePage() {
           setLoading(false);
         });
     }
-  }, [familyId]);
+  }, [addToast, familyId, initFamily]);
 
   useEffect(() => {
     if (editPerson !== undefined) {
@@ -175,7 +175,7 @@ function HomePage() {
           )}
         </div>
       </div>
-      {view === View.TREE && familyId && (
+      {view === View.TREE && familyId && !loading && (
         <FamilyTree
           id={familyId}
           people={people}
