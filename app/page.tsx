@@ -7,7 +7,7 @@ import EditPersonModal from "../components/modals/editperson";
 import { useUiStore } from "@/stores/ui";
 import { useFamilyStore } from "@/stores/family";
 import { getFamilies, getFamilyData } from "@/app/lib/family";
-import Map from "@/components/map";
+import LocationMap from "@/components/map";
 import { Button, Select, SelectItem, Tab, Tabs } from "@nextui-org/react";
 import { GiFamilyTree } from "react-icons/gi";
 import { FaChartArea, FaMap } from "react-icons/fa";
@@ -183,7 +183,7 @@ function HomePage() {
           childList={children}
         ></FamilyTree>
       )}
-      {view === View.MAP && <Map people={people} />}
+      {view === View.MAP && <LocationMap people={people} />}
 
       {view === View.STATISTICS && (
         <Statistics
